@@ -97,6 +97,8 @@
     <ClInclude Include="source\Model.h" />
     <ClInclude Include="source\Tile.h" />
     <ClInclude Include="source\tscb.h" />
+    <ClInclude Include="source\TSCBHeader.h" />
+    <ClInclude Include="source\TSCBMaterialTable.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
