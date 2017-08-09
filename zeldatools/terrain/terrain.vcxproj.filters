@@ -47,13 +47,13 @@
     <ClInclude Include="source\tscb.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Tile.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\TSCBHeader.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="source\TSCBMaterialTable.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\TSCBTile.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

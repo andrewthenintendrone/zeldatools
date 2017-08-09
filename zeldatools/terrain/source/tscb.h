@@ -1,5 +1,5 @@
 #pragma once
-#include "Tile.h"
+#include "TSCBTile.h"
 #include <fstream>
 #include <vector>
 #include "TSCBHeader.h"
@@ -11,16 +11,17 @@ public:
     TSCB();
     ~TSCB();
 
-    Tile tiles[9033];
 private:
     std::ifstream tscbFile;
     std::ofstream outputFile;
 
     void readHeader();
     void readMaterialTable();
-    void readStrings();
+    void readTiles();
+
     void writeFile();
 
     TSCBHeader headerInfo;
     TSCBMaterialTable materialTable[88];
+    TSCBTile tiles[9033];
 };
