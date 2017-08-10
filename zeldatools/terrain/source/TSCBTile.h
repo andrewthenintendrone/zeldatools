@@ -3,6 +3,7 @@
 
 struct TSCBTile
 {
+    uint32_t offset = 0;
     float centerX = 0.0f;
     float centerY = 0.0f;
     float edgeLength = 0.0f;

@@ -1,8 +1,9 @@
 #pragma once
+#include <string>
 
-static const unsigned int numberOfFiles = 1352;
+const unsigned int numFiles = 1352;
 
-std::string files[] = { "5800002558.hght.sstera",
+std::string fileNames[1352] = { "5800002558.hght.sstera",
 "5800002568.hght.sstera",
 "5800002594.hght.sstera",
 "580000259C.hght.sstera",

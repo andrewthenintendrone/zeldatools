@@ -1,8 +1,5 @@
 #include "Model.h"
 #include <iostream>
-#include <intrin.h>
-
-char charToValue(char input);
 std::string getProgramPath();
 
 const int xOffsets[4] = { 0, 0, 256, 256 };
@@ -69,7 +66,6 @@ void Model::readChunkOrder()
         // jump 9 characters
         fseek(ssteraFile, 9, SEEK_CUR);
         fread((void*)&chunkOrder[i], sizeof(char), 1, ssteraFile);
-        chunkOrder[i] = charToValue(chunkOrder[i]);
         if (chunkOrder[i] < lowestChunk)
         {
             lowestChunk = chunkOrder[i];

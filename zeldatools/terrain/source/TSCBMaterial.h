@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 
-struct TSCBMaterialTable
+struct TSCBMaterial
 {
     uint32_t offset = 0;
     uint32_t index = 0;

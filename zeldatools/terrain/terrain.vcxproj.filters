@@ -24,36 +24,39 @@
     <ClCompile Include="source\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\HeightMap.cpp">
+    <ClCompile Include="source\SARC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\tscb.cpp">
+    <ClCompile Include="source\TSCB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\fileNames.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\Material.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Model.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\HeightMap.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\tscb.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\TSCBHeader.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\TSCBMaterialTable.h">
+    <ClInclude Include="source\TSCBTile.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\TSCBTile.h">
+    <ClInclude Include="source\packedFiles.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\SARC.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\endian.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\TSCBMaterial.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\TSCB.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

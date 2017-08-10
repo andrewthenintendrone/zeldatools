@@ -1,9 +1,8 @@
 #pragma once
-#include "TSCBTile.h"
 #include <fstream>
-#include <vector>
 #include "TSCBHeader.h"
-#include "TSCBMaterialTable.h"
+#include "TSCBMaterial.h"
+#include "TSCBTile.h"
 
 class TSCB
 {
@@ -12,8 +11,8 @@ public:
     ~TSCB();
 
 private:
-    std::ifstream tscbFile;
-    std::ofstream outputFile;
+    std::ifstream m_inputFile;
+    std::ofstream m_outputFile;
 
     void readHeader();
     void readMaterialTable();
@@ -21,7 +20,7 @@ private:
 
     void writeFile();
 
-    TSCBHeader headerInfo;
-    TSCBMaterialTable materialTable[88];
-    TSCBTile tiles[9033];
+    TSCBHeader m_headerInfo;
+    TSCBMaterial m_materials[88];
+    TSCBTile m_tiles[9033];
 };

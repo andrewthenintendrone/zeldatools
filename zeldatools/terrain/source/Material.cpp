@@ -1,7 +1,6 @@
 #include "Material.h"
 #include <iostream>
 
-char charToValue(char input);
 std::string getProgramPath();
 
 // per-texture constants
@@ -68,7 +67,6 @@ void Material::readChunkOrder()
         // jump 9 characters
         fseek(ssteraFile, 9, SEEK_CUR);
         fread((void*)&chunkOrder[i], sizeof(char), 1, ssteraFile);
-        chunkOrder[i] = charToValue(chunkOrder[i]);
         if (chunkOrder[i] < lowestChunk)
         {
             lowestChunk = chunkOrder[i];
