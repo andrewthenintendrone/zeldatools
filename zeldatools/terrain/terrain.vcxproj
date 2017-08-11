@@ -155,14 +155,16 @@
     <ClCompile Include="source\Material.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\Model.cpp" />
+    <ClCompile Include="source\Tile.h" />
     <ClCompile Include="source\SARC.cpp" />
     <ClCompile Include="source\TSCB.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\endian.h" />
+    <ClInclude Include="source\fileNames.h" />
     <ClInclude Include="source\Material.h" />
+    <ClInclude Include="source\megamap.h" />
     <ClInclude Include="source\Model.h" />
-    <ClInclude Include="source\packedFiles.h" />
     <ClInclude Include="source\SARC.h" />
     <ClInclude Include="source\TSCBTile.h" />
     <ClInclude Include="source\TSCB.h" />

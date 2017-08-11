@@ -30,6 +30,9 @@
     <ClCompile Include="source\TSCB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\Tile.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Material.h">
@@ -44,9 +47,6 @@
     <ClInclude Include="source\TSCBTile.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\packedFiles.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\SARC.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -57,6 +57,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="source\TSCB.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\fileNames.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\megamap.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

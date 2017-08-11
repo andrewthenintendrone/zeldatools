@@ -1,135 +1,100 @@
 #include "Model.h"
 #include <iostream>
+#include "endian.h"
+#include "fileNames.h"
+#include <algorithm>
+
 std::string getProgramPath();
-
-const int xOffsets[4] = { 0, 0, 256, 256 };
-const int yOffsets[4] = { 0, 256, 0, 256 };
-
-const int modelXZScale = 1;
 
 Model::Model()
 {
-
-}
-
-Model::Model(std::string& newFileName, std::string& newShortFileName)
-{
-    fileName = newFileName;
-    shortFileName = newShortFileName;
-
-    // open sstera file
-    ssteraFile = fopen(fileName.c_str(), "rb");
-
-    // check if the file opened properly
-    if (ssteraFile == NULL)
-    {
-        std::cout << "failed to open " << shortFileName << ".sstera" << std::endl;
-        system("pause");
-        return;
-    }
-
-    // create model file
-    modelFile = fopen(std::string(getProgramPath() + "\\models\\" + shortFileName + ".obj").c_str(), "wb");
-
-    // check if the file opened properly
-    if (modelFile == NULL)
-    {
-        std::cout << "failed to create " << shortFileName << ".obj" << std::endl;
-        system("pause");
-        return;
-    }
-
-    readChunkOrder();
+    // read, sort, and write heights
+    readHeights();
+    arrangeHeights();
+    writeHeights();
 }
 
 Model::~Model()
 {
-    // close files
-    fclose(ssteraFile);
-    fclose(modelFile);
+
 }
 
-void Model::readChunkOrder()
+void Model::readHeights()
 {
-    // read number of chunks
-    fseek(ssteraFile, 0x1B, SEEK_SET);
-    fread((void*)&numChunks, sizeof(uint8_t), 1, ssteraFile);
-    //std::cout << "found " << (int)numChunks << " chunks\n ";
-
-    // move to the start of filename data
-    fseek(ssteraFile, 0x28 + 0x10 * numChunks, SEEK_SET);
-
-    char lowestChunk = 'Z';
-    // read chunk order
-    for (int i = 0; i < numChunks; i++)
+    // go through each unpacked file
+    for (unsigned int i = 0; i < fileNames.size(); i++)
     {
-        // jump 9 characters
-        fseek(ssteraFile, 9, SEEK_CUR);
-        fread((void*)&chunkOrder[i], sizeof(char), 1, ssteraFile);
-        if (chunkOrder[i] < lowestChunk)
+        // display progress
+        system("cls");
+        std::cout << "Reading Heights: " << i + 1 << "/" << fileNames.size() << std::endl;
+
+        // open current input file
+        m_ModelInputFiles[i].open(fileNames[i], std::ios::binary | std::ios::_Nocreate);
+
+        // check if it opened
+        //if (!m_ModelInputFiles[i].is_open())
+        //{
+        //    std::cout << "failed to open " << fileNames[i] << std::endl;
+        //    system("pause");
+        //}
+
+        // create a new tile
+        Tile* currentTile = new Tile;
+
+        // read the heightmap data
+        m_ModelInputFiles[i].read(reinterpret_cast<char*>(&currentTile->m_heights), sizeof(currentTile->m_heights));
+        // calculate and set the x and y center
+        currentTile->centerX = m_tscbFile.m_tiles[5291 + i].centerX / 0.125f + 78.5f;
+        currentTile->centerY = m_tscbFile.m_tiles[5291 + i].centerY / 0.125f + 61.5f;
+
+        // add the current tile to the list
+        m_megamap
+
+        // close the current input file
+        m_ModelInputFiles[i].close();
+    }
+}
+
+// sort tiles using a custom function object
+struct
+{
+    bool operator()(Tile* a, Tile* b) const
+    {
+        if (a->centerY < b->centerY)
         {
-            lowestChunk = chunkOrder[i];
+            return true;
         }
-        // jump 6 characters
-        fseek(ssteraFile, 6, SEEK_CUR);
-    }
-
-    std::cout << "the order of the chunk(s) is ";
-    // align chunk order
-    for (int i = 0; i < numChunks; i++)
-    {
-        chunkOrder[i] -= lowestChunk;
-        std::cout << (int)chunkOrder[i] << " ";
-    }
-    std::cout << std::endl;
-
-    writeHeader();
-}
-
-void Model::writeHeader()
-{
-    // write object header
-    fputs(std::string("o " + shortFileName + "\n\n").c_str(), modelFile);
-
-    readVerts();
-}
-
-void Model::readVerts()
-{
-    for (int i = 0; i < numChunks; i++)
-    {
-        fread((void*)&heights[chunkOrder[i]], sizeof(heights[chunkOrder[i]]), 1, ssteraFile);
-    }
-
-    writeVerts();
-}
-
-void Model::writeVerts()
-{
-    for (int i = 0; i < numChunks; i++)
-    {
-        for (int y = 255; y > -1; y--)
+        else if (a->centerY > b->centerY)
         {
-            for (int x = 255; x > -1; x--)
-            {
-                fputs(std::string("v " + std::to_string((x + xOffsets[chunkOrder[i]]) * modelXZScale) + ".0 " + std::to_string(heights[chunkOrder[i]][x][y]) + ".0 " + std::to_string((y + yOffsets[chunkOrder[i]]) * modelXZScale) + ".0\n").c_str(), modelFile);
-            }
+            return false;
+        }
+        // same row
+        else
+        {
+            return (a->centerX < b->centerX);
         }
     }
+} tileSort;
 
-    writeFaces();
+void Model::arrangeHeights()
+{
+    std::cout << "arranging heights\n";
+    std::sort(m_tiles.begin(), m_tiles.end(), tileSort);
 }
 
-void Model::writeFaces()
+void Model::writeHeights()
 {
-    for (int i = 0; i < numChunks; i++)
+    std::cout << "writing data\n";
+
+    // open output file
+    m_ModelOutputFile.open("hyrule.raw", std::ios::binary | std::ios::trunc);
+
+    // check if the file opened properly
+    if (!m_ModelOutputFile.is_open())
     {
-        for (int v = 1; v < 65281; v++)
-        {
-            if (v % 256 != 0)
-            {
-                fputs(std::string("f " + std::to_string(i * 65536 + v) + " " + std::to_string(i * 65536 + v + 1) + " " + std::to_string(i * 65536 + v + 257) + " " + std::to_string(i * 65536 + v + 256) + "\n").c_str(), modelFile);
-            }
-        }
+        std::cout << "failed to open hyrule.raw" << std::endl;
+        system("pause");
     }
+
+    
 }

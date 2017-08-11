@@ -10,9 +10,10 @@ public:
     TSCB();
     ~TSCB();
 
+    TSCBTile m_tiles[9033];
 private:
-    std::ifstream m_inputFile;
-    std::ofstream m_outputFile;
+    std::ifstream m_tscbInputFile;
+    std::ofstream m_tscbOutputFile;
 
     void readHeader();
     void readMaterialTable();
@@ -22,5 +23,4 @@ private:
 
     TSCBHeader m_headerInfo;
     TSCBMaterial m_materials[88];
-    TSCBTile m_tiles[9033];
 };

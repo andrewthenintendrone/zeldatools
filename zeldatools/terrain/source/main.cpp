@@ -1,10 +1,9 @@
 #include <Windows.h>
 #include <iostream>
 #include <string>
-#include "SARC.h"
-#include "TSCB.h"
-#include "packedFiles.h"
 #include <thread>
+#include "Model.h"
+#pragma comment(linker, "/STACK:20000000")
 
 static const int maximumThreads = 4;
 
@@ -33,40 +32,13 @@ void processFile(std::string& fileName)
     //    std::cout << "Unknown file type" << std::endl;
     //    system("pause");
     //}
-
-    SARC sarc(fileName);
 }
 
 int main(int argc, char* argv[])
 {
+    Model model;
     //TSCB tscb;
-    //std::thread threads[maximumThreads];
-    //int completedFiles = 1;
-
-    //while (completedFiles < numFiles)
-    //{
-
-        //unsigned int numberToDo = numFiles - completedFiles;
-
-        //if (numberToDo > maximumThreads)
-        //{
-        //    numberToDo = maximumThreads;
-        //}
-
-        for (unsigned int i = 0; i < numFiles; i++)
-        {
-            SARC sarc(fileNames[i]);
-            system("cls");
-            std::cout << "Finished: " << i << "/" << numFiles << std::endl;
-            //threads[i] = std::thread(processFile, std::string(fileNames[completedFiles + i]));
-        }
-        //for (unsigned int i = 0; i < numberToDo; i++)
-        //{
-        //    threads[i].join();
-        //}
-        //completedFiles += numberToDo;
-    //}
-
+    
     system("pause");
     return 0;
 }

@@ -7,21 +7,20 @@ class string;
 class SARC
 {
 public:
-
-    SARC(const std::string& fileName);
+    SARC(std::string& fileName = std::string("MainFiled.tscb"));
     ~SARC();
 
 private:
 
-    std::ifstream m_inputFile;
-    std::ofstream m_outputFile;
+    std::ifstream m_SARCinputFile;
+    std::ofstream m_SARCoutputFiles[4];
 
     void readHeaderInfo();
-    void readFiles();
-    void writeFiles();
+    void readFile();
+    void writeFile();
 
-    uint16_t m_numFiles;
-    uint32_t m_dataOffset;
-    char m_fileNames[4][16];
-    uint16_t m_data[4][65536];
+    uint16_t m_numFiles = 0;
+    uint32_t m_dataOffset = 0;
+    char m_fileNames[4][16]{ 0 };
+    uint16_t m_data[4][256][256]{ 0 };
 };

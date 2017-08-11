@@ -5,15 +5,16 @@
 
 std::string getProgramPath();
 
-SARC::SARC(const std::string& fileName)
+SARC::SARC(std::string& fileName)
 {
     // open input file
-    m_inputFile.open(fileName, std::ios::binary | std::ios::_Nocreate);
+    m_SARCinputFile.open(fileName, std::ios::binary | std::ios::_Nocreate);
 
     // check if file was opened correctly
-    if (!m_inputFile.is_open())
+    if (!m_SARCinputFile.is_open())
     {
         std::cout << "Failed to open " << fileName << std::endl;
+        system("pause");
     }
 
     readHeaderInfo();
@@ -21,7 +22,7 @@ SARC::SARC(const std::string& fileName)
 
 SARC::~SARC()
 {
-    m_inputFile.close();
+
 }
 
 // obtains the following info from the SARC header:
@@ -31,55 +32,71 @@ SARC::~SARC()
 void SARC::readHeaderInfo()
 {
     // read data offset
-    m_inputFile.seekg(0xc, std::ios::beg);
-    m_inputFile.read(reinterpret_cast<char*>(&m_dataOffset), 4);
+    m_SARCinputFile.seekg(0xc, std::ios::beg);
+    m_SARCinputFile.read(reinterpret_cast<char*>(&m_dataOffset), 4);
     m_dataOffset = swap_endian<uint32_t>(m_dataOffset);
 
     // read number of files
-    m_inputFile.seekg(0x1A, std::ios::beg);
-    m_inputFile.read(reinterpret_cast<char*>(&m_numFiles), 2);
+    m_SARCinputFile.seekg(0x1A, std::ios::beg);
+    m_SARCinputFile.read(reinterpret_cast<char*>(&m_numFiles), 2);
     m_numFiles = swap_endian<uint16_t>(m_numFiles);
 
     // read file names
-    for (int j = 0; j < m_numFiles; j++)
+    for (int i = 0; i < m_numFiles; i++)
     {
         // jump to start of filename table + current file name
-        m_inputFile.seekg(0x28 + 0x10 * (m_numFiles + j), std::ios::beg);
-        m_inputFile.read(m_fileNames[j], 0x10);
+        m_SARCinputFile.seekg(0x28 + 0x10 * (m_numFiles + i), std::ios::beg);
+        m_SARCinputFile.read(reinterpret_cast<char*>(&m_fileNames[i]), 0x10);
     }
 
-    readFiles();
+    readFile();
 }
 
 // reads each file into memory
-void SARC::readFiles()
+void SARC::readFile()
 {
     for (int i = 0; i < m_numFiles; i++)
     {
         // jump to current file offset
-        m_inputFile.seekg(m_dataOffset + sizeof(m_data) * i, std::ios::beg);
+        m_SARCinputFile.seekg(m_dataOffset + (0x20000 * i), std::ios::beg);
 
         // read current file
-        m_inputFile.read(reinterpret_cast<char*>(&m_data[i]), sizeof(m_data[i]));
+        for (int x = 0; x < 256; x++)
+        {
+            for (int y = 0; y < 256; y++)
+            {
+                m_SARCinputFile.read(reinterpret_cast<char*>(&m_data[i][x][y]), sizeof(uint16_t));
+            }
+        }
     }
 
-    writeFiles();
+    writeFile();
 }
 
 // wries files
-void SARC::writeFiles()
+void SARC::writeFile()
 {
     for (int i = 0; i < m_numFiles; i++)
     {
-        m_outputFile.open((getProgramPath() + "\\output\\" + m_fileNames[i]), std::ios::binary | std::ios::trunc);
+        m_SARCoutputFiles[i].open((getProgramPath() + "\\output\\" + m_fileNames[i]), std::ios::binary | std::ios::trunc);
 
-        if (!m_outputFile.is_open())
+        if (!m_SARCoutputFiles[i].is_open())
         {
             std::cout << "failed to open " << m_fileNames[i] << std::endl;
+            system("pause");
         }
 
-        m_outputFile.write(reinterpret_cast<char*>(m_data[i]), sizeof(m_data[i]));
+        // write current file
+        for (int x = 0; x < 256; x++)
+        {
+            for (int y = 0; y < 256; y++)
+            {
+                m_SARCoutputFiles[i].write(reinterpret_cast<char*>(&m_data[i][x][y]), sizeof(uint16_t));
+            }
+        }
 
-        m_outputFile.close();
+        m_SARCoutputFiles[i].close();
     }
+
+    m_SARCinputFile.close();
 }
