@@ -3,11 +3,11 @@
 #include "TSCB.h"
 #include <vector>
 
-class Model
+class HeightMap
 {
 public:
-    Model(int qualityLevel);
-    ~Model();
+    HeightMap(int qualityLevel);
+    ~HeightMap();
 
 private:
 
@@ -18,11 +18,15 @@ private:
 
     TSCB m_tscbFile;
 
+    int m_heightMapWidth;
+    int m_heightMapHeight;
+
     std::ifstream m_HeightMapInputFile;
-    std::ofstream m_ModelOutputFile;
+    std::ofstream m_HeightMapOutputFile;
 
     void readFileNames();
     void readHeights();
+    void sortHeights();
     void writeHeights();
 
     std::vector<Tile*> m_tiles;

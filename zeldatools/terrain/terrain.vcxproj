@@ -71,24 +71,24 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)\bin\</OutDir>
+    <OutDir>C:\Users\Andrew\Desktop\terrain\</OutDir>
     <IntDir>$(ProjectDir)\build\($Configuration)\</IntDir>
     <TargetName>$(ProjectName)_DEBUG</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>$(ProjectName)_DEBUG</TargetName>
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)\bin\</OutDir>
+    <OutDir>C:\Users\Andrew\Desktop\terrain\</OutDir>
     <IntDir>$(ProjectDir)\build\($Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)\bin\</OutDir>
+    <OutDir>C:\Users\Andrew\Desktop\terrain\</OutDir>
     <IntDir>$(ProjectDir)\build\($Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)\bin\</OutDir>
+    <OutDir>C:\Users\Andrew\Desktop\terrain\</OutDir>
     <IntDir>$(ProjectDir)\build\($Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -152,6 +152,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\HeightMap.cpp" />
     <ClCompile Include="source\Material.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\Model.cpp" />
@@ -161,9 +162,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\endian.h" />
-    <ClInclude Include="source\fileNames.h" />
+    <ClInclude Include="source\HeightMap.h" />
     <ClInclude Include="source\Material.h" />
-    <ClInclude Include="source\megamap.h" />
     <ClInclude Include="source\Model.h" />
     <ClInclude Include="source\SARC.h" />
     <ClInclude Include="source\TSCBTile.h" />

@@ -1,8 +1,10 @@
 #include <Windows.h>
-#include <iostream>
 #include <string>
 #include <thread>
+#include <iostream>
 #include "Model.h"
+#include "HeightMap.h"
+#include "SARC.h"
 #pragma comment(linker, "/STACK:20000000")
 
 static const int maximumThreads = 4;
@@ -32,12 +34,60 @@ void processFile(std::string& fileName)
     //    std::cout << "Unknown file type" << std::endl;
     //    system("pause");
     //}
+    SARC currentFile(fileName);
+}
+
+void unpackFiles()
+{
+    std::ifstream fileList;
+    fileList.open("packedFileNames.txt", std::ios::_Nocreate | std::ios::binary);
+    std::vector<std::string>fileNames;
+
+    while (!fileList.eof())
+    {
+        std::string currentFileName;
+        fileList >> currentFileName;
+        fileNames.push_back(currentFileName);
+    }
+    fileList.close();
+
+    int numFiles = fileNames.size();
+    int completedFiles = 0;
+
+    std::thread threads[maximumThreads];
+
+    while (completedFiles < numFiles)
+    {
+        unsigned int numberToDo = numFiles - completedFiles;
+
+        if (numberToDo > maximumThreads)
+        {
+            numberToDo = maximumThreads;
+        }
+
+        for (unsigned int i = 0; i < numberToDo; i++)
+        {
+            threads[i] = std::thread(processFile, fileNames[completedFiles + i]);
+        }
+        for (unsigned int i = 0; i < numberToDo; i++)
+        {
+            threads[i].join();
+            completedFiles++;
+            std::cout << "Progress: " << completedFiles + i << "/" << numFiles << std::endl;
+        }
+    }
 }
 
 int main(int argc, char* argv[])
 {
-    Model model;
-    //TSCB tscb;
+    std::cout << "enter a quality level: ";
+    int qualityLevel;
+    std::cin >> qualityLevel;
+
+    //Model model(qualityLevel);
+    HeightMap heightmap(qualityLevel);
+
+    //unpackFiles();
     
     system("pause");
     return 0;

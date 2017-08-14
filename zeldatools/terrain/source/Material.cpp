@@ -1,4 +1,6 @@
 #include "Material.h"
+#include <string>
+#include <windows.h>
 #include <iostream>
 
 std::string getProgramPath();

@@ -2,12 +2,10 @@
 #include <fstream>
 #include <cstdint>
 
-class string;
-
 class SARC
 {
 public:
-    SARC(std::string& fileName = std::string("MainFiled.tscb"));
+    SARC(std::string& fileName);
     ~SARC();
 
 private:
@@ -21,6 +19,7 @@ private:
 
     uint16_t m_numFiles = 0;
     uint32_t m_dataOffset = 0;
+    uint32_t m_dataSize = 0;
     char m_fileNames[4][16]{ 0 };
     uint16_t m_data[4][256][256]{ 0 };
 };

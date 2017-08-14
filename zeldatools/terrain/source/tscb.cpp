@@ -176,7 +176,7 @@ void TSCB::writeFile()
     //}
 
     // write tile table info
-    for (int i = 5291; i < 9033; i++)
+    for (int i = 0; i < 9033; i++)
     {
         //m_tscbOutputFile << "Offset: 0x" << std::hex << m_tiles[i].offset << std::dec << std::endl;
         //m_tscbOutputFile << "Tile " << m_tiles[i].tileName << std::endl;

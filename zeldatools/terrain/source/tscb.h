@@ -12,6 +12,7 @@ public:
 
     TSCBTile m_tiles[9033];
 private:
+
     std::ifstream m_tscbInputFile;
     std::ofstream m_tscbOutputFile;
 
