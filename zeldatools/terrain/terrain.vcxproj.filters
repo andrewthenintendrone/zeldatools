@@ -13,57 +13,141 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Array">
+      <UniqueIdentifier>{cff818c7-26c1-4b70-a810-234bba557471}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\FileTypes">
+      <UniqueIdentifier>{d0c60311-320d-4af0-b647-c7459e23fc3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Helper">
+      <UniqueIdentifier>{7d1a07c7-d162-4804-997f-f0de33ff1dde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering">
+      <UniqueIdentifier>{855768d6-bf1c-4ceb-91ed-fde18d8e8572}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Material.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\HGHT.cpp">
+      <Filter>Source Files\FileTypes</Filter>
     </ClCompile>
-    <ClCompile Include="source\Model.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\MATE.cpp">
+      <Filter>Source Files\FileTypes</Filter>
     </ClCompile>
-    <ClCompile Include="source\SARC.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\SSTERA.cpp">
+      <Filter>Source Files\FileTypes</Filter>
     </ClCompile>
     <ClCompile Include="source\TSCB.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\FileTypes</Filter>
     </ClCompile>
-    <ClCompile Include="source\Tile.h">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\TextureHolder.cpp">
+      <Filter>Source Files\Helper</Filter>
     </ClCompile>
-    <ClCompile Include="source\HeightMap.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\Color.cpp">
+      <Filter>Source Files\FileTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Texture2D.cpp">
+      <Filter>Source Files\FileTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\WATER.cpp">
+      <Filter>Source Files\FileTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Camera.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="source\FlyCamera.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="source\glad.c">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="source\OpenGLApplication.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Shader.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Time.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Terrain.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Input.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Texture3D.cpp">
+      <Filter>Source Files\FileTypes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\Material.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="source\Array2D.h">
+      <Filter>Source Files\Array</Filter>
     </ClInclude>
-    <ClInclude Include="source\Model.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="source\Array3D.h">
+      <Filter>Source Files\Array</Filter>
     </ClInclude>
-    <ClInclude Include="source\TSCBHeader.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="source\HGHT.h">
+      <Filter>Source Files\FileTypes</Filter>
     </ClInclude>
-    <ClInclude Include="source\TSCBTile.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="source\MATE.h">
+      <Filter>Source Files\FileTypes</Filter>
     </ClInclude>
-    <ClInclude Include="source\SARC.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\endian.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\TSCBMaterial.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="source\SSTERA.h">
+      <Filter>Source Files\FileTypes</Filter>
     </ClInclude>
     <ClInclude Include="source\TSCB.h">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\FileTypes</Filter>
     </ClInclude>
-    <ClInclude Include="source\HeightMap.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="source\TextureHolder.h">
+      <Filter>Source Files\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="source\filenameUtils.h">
+      <Filter>Source Files\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="source\endian.h">
+      <Filter>Source Files\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Color.h">
+      <Filter>Source Files\FileTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Texture2D.h">
+      <Filter>Source Files\FileTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\WATER.h">
+      <Filter>Source Files\FileTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Camera.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="source\FlyCamera.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Light.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="source\OpenGLApplication.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Shader.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Time.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Vertex.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Terrain.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Input.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Texture3D.h">
+      <Filter>Source Files\FileTypes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

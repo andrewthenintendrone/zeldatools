@@ -1,199 +1,368 @@
 #include "TSCB.h"
 #include <iostream>
-#include <iomanip>
-#include <algorithm>
-#include <climits>
 #include "endian.h"
+#include <stb\stb_image_write.h>
+#include <algorithm>
+#include "Array2D.h"
+#include "HGHT.h"
 
+#include <experimental\filesystem>
+namespace fs = std::experimental::filesystem;
+
+TSCB& TSCB::getInstance()
+{
+	static TSCB instance;
+	return instance;
+}
 
 TSCB::TSCB()
 {
-    m_tscbInputFile.open("MainField.tscb", std::ios::binary | std::ios::_Nocreate);
-
-    if (!m_tscbInputFile.is_open())
-    {
-        std::cout << "Failed to open MainField.tscb\n";
-    }
-
-    m_tscbOutputFile.open("output.txt", std::ios::trunc);
-
-    if (!m_tscbInputFile.is_open())
-    {
-        std::cout << "Failed to open MainField.tscb\n";
-    }
-
-    readHeader();
+	readFile();
+	fixTileOffsets();
 }
 
-TSCB::~TSCB()
+void TSCB::readFile()
 {
-    
+	// open MainField.tscb
+	m_inputFile.open(fs::current_path().string() + "\\MainField.tscb", std::ios::binary | std::ios::_Nocreate);
+
+	// ensure it opened correctly
+	if (!m_inputFile.is_open())
+	{
+		std::cout << "Failed to open MainField.tscb" << std::endl;
+		return;
+	}
+
+	// read the different parts of the file
+	readHeader();
+	readMaterialTableOffsets();
+	readMaterialTable();
+	readTileTableOffsets();
+	readTileTable();
+	readTileNames();
+
+	// close input file
+	m_inputFile.close();
 }
 
 void TSCB::readHeader()
 {
-    m_tscbInputFile.read(reinterpret_cast<char*>(&m_headerInfo.magic), 4);
-    m_tscbInputFile.read(reinterpret_cast<char*>(&m_headerInfo.unknown), 4);
-    m_tscbInputFile.read(reinterpret_cast<char*>(&m_headerInfo.unknown2), 4);
-    m_tscbInputFile.read(reinterpret_cast<char*>(&m_headerInfo.stringTableOffset), 4);
-    m_tscbInputFile.read(reinterpret_cast<char*>(&m_headerInfo.unknownFloat), 4);
-    m_tscbInputFile.read(reinterpret_cast<char*>(&m_headerInfo.unknownFloat2), 4);
-    m_tscbInputFile.read(reinterpret_cast<char*>(&m_headerInfo.materialLookupTableCount), 4);
-    m_tscbInputFile.read(reinterpret_cast<char*>(&m_headerInfo.tileTableCount), 4);
-    m_tscbInputFile.read(reinterpret_cast<char*>(&m_headerInfo.unknown3), 4);
-    m_tscbInputFile.read(reinterpret_cast<char*>(&m_headerInfo.unknown4), 4);
-    m_tscbInputFile.read(reinterpret_cast<char*>(&m_headerInfo.unknownFloat3), 4);
-    m_tscbInputFile.read(reinterpret_cast<char*>(&m_headerInfo.unknown5), 4);
-    m_tscbInputFile.read(reinterpret_cast<char*>(&m_headerInfo.sizeOfMaterialLookupTable), 4);
+	// read raw values
+    m_inputFile.read(reinterpret_cast<char*>(&m_header.magic), 4);
+    m_inputFile.read(reinterpret_cast<char*>(&m_header.unk), 4);
+    m_inputFile.read(reinterpret_cast<char*>(&m_header.unk2), 4);
+    m_inputFile.read(reinterpret_cast<char*>(&m_header.stringTableOffset), 4);
+    m_inputFile.read(reinterpret_cast<char*>(&m_header.unkFloat), 4);
+    m_inputFile.read(reinterpret_cast<char*>(&m_header.unkFloat2), 4);
+    m_inputFile.read(reinterpret_cast<char*>(&m_header.materialLookupTableCount), 4);
+    m_inputFile.read(reinterpret_cast<char*>(&m_header.tileTableCount), 4);
+    m_inputFile.read(reinterpret_cast<char*>(&m_header.unk3), 4);
+    m_inputFile.read(reinterpret_cast<char*>(&m_header.unk4), 4);
+    m_inputFile.read(reinterpret_cast<char*>(&m_header.unkFloat3), 4);
+    m_inputFile.read(reinterpret_cast<char*>(&m_header.unk5), 4);
+    m_inputFile.read(reinterpret_cast<char*>(&m_header.materialLookupTableSize), 4);
 
-    m_headerInfo.unknown2 = swap_endian<uint32_t>(m_headerInfo.unknown2);
-    m_headerInfo.stringTableOffset = swap_endian<uint32_t>(m_headerInfo.stringTableOffset);
-    m_headerInfo.unknownFloat = swap_endian<float>(m_headerInfo.unknownFloat);
-    m_headerInfo.unknownFloat2 = swap_endian<float>(m_headerInfo.unknownFloat2);
-    m_headerInfo.materialLookupTableCount = swap_endian<uint32_t>(m_headerInfo.materialLookupTableCount);
-    m_headerInfo.tileTableCount = swap_endian<uint32_t>(m_headerInfo.tileTableCount);
-    m_headerInfo.unknownFloat3 = swap_endian<float>(m_headerInfo.unknownFloat3);
-    m_headerInfo.unknown5 = swap_endian<uint32_t>(m_headerInfo.unknown5);
-    m_headerInfo.sizeOfMaterialLookupTable = swap_endian<uint32_t>(m_headerInfo.sizeOfMaterialLookupTable);
+	// swap endian on certain values
+    m_header.unk2 = swap_endian<uint32_t>(m_header.unk2);
+    m_header.stringTableOffset = swap_endian<uint32_t>(m_header.stringTableOffset);
+    m_header.unkFloat = swap_endian<float>(m_header.unkFloat);
+    m_header.unkFloat2 = swap_endian<float>(m_header.unkFloat2);
+    m_header.materialLookupTableCount = swap_endian<uint32_t>(m_header.materialLookupTableCount);
+    m_header.tileTableCount = swap_endian<uint32_t>(m_header.tileTableCount);
+    m_header.unkFloat3 = swap_endian<float>(m_header.unkFloat3);
+    m_header.unk5 = swap_endian<uint32_t>(m_header.unk5);
+    m_header.materialLookupTableSize = swap_endian<uint32_t>(m_header.materialLookupTableSize);
 
-    readMaterialTable();
+	std::cout << "Finished reading header at 0x" << std::hex << m_inputFile.tellg() << std::endl;
+}
+
+void TSCB::readMaterialTableOffsets()
+{
+	for (unsigned int i = 0; i < m_header.materialLookupTableCount; i++)
+	{
+		uint32_t currentOffset;
+		m_inputFile.read(reinterpret_cast<char*>(&currentOffset), sizeof(uint32_t));
+		currentOffset = swap_endian<uint32_t>(currentOffset);
+		m_materialTableOffsets.push_back(currentOffset + uint32_t(m_inputFile.tellg()) - 4);
+	}
+
+	std::cout << "Finished reading material table offsets at 0x" << std::hex << m_inputFile.tellg() << std::endl;
 }
 
 void TSCB::readMaterialTable()
 {
-    for (int i = 0; i < 88; i++)
+    for (size_t i = 0; i < m_materialTableOffsets.size(); i++)
     {
-        // store file position
-        uint32_t fileBookmark = m_tscbInputFile.tellg();
+		// jump to the correct offset
+		m_inputFile.seekg(std::streampos(m_materialTableOffsets[i]), std::ios::beg);
 
-        // read current material offset
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_materials[i].offset), 4);
+        // read a material
+		TSCBMaterialInfo material;
 
-        m_materials[i].offset = swap_endian<uint32_t>(m_materials[i].offset);
-        
-        // jump to material struct and read it
-        m_tscbInputFile.seekg(m_materials[i].offset - 4, std::ios::cur);
+		m_inputFile.read(reinterpret_cast<char*>(&material.index), sizeof(uint32_t));
+		m_inputFile.read(reinterpret_cast<char*>(&material.red), sizeof(float));
+		m_inputFile.read(reinterpret_cast<char*>(&material.green), sizeof(float));
+		m_inputFile.read(reinterpret_cast<char*>(&material.blue), sizeof(float));
+		m_inputFile.read(reinterpret_cast<char*>(&material.alpha), sizeof(float));
 
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_materials[i].index), 4);
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_materials[i].red), 4);
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_materials[i].green), 4);
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_materials[i].blue), 4);
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_materials[i].alpha), 4);
+		// swap endian for all values
+		material.index = swap_endian<uint32_t>(material.index);
+		material.red = swap_endian<float>(material.red);
+		material.green = swap_endian<float>(material.green);
+		material.blue = swap_endian<float>(material.blue);
+		material.alpha = swap_endian<float>(material.alpha);
 
-        m_materials[i].index = swap_endian<uint32_t>(m_materials[i].index);
-        m_materials[i].red = swap_endian<float>(m_materials[i].red);
-        m_materials[i].green = swap_endian<float>(m_materials[i].green);
-        m_materials[i].blue = swap_endian<float>(m_materials[i].blue);
-        m_materials[i].alpha = swap_endian<float>(m_materials[i].alpha);
-
-        // return to the stored offset for next read
-        m_tscbInputFile.seekg(fileBookmark + 4, std::ios::beg);
+		// add to vector
+		m_materialTable.push_back(material);
     }
 
-    readTiles();
+	std::cout << "Finished reading material table at 0x" << std::hex << m_inputFile.tellg() << std::endl;
 }
 
-void TSCB::readTiles()
+void TSCB::readTileTableOffsets()
 {
-    m_tscbInputFile.seekg(0x874);
+	for (unsigned int i = 0; i < m_header.tileTableCount; i++)
+	{
+		uint32_t currentOffset;
+		m_inputFile.read(reinterpret_cast<char*>(&currentOffset), sizeof(uint32_t));
+		currentOffset = swap_endian<uint32_t>(currentOffset);
+		m_tileTableOffsets.push_back(currentOffset + uint32_t(m_inputFile.tellg()) - 4);
+	}
 
-    for (int i = 0; i < 9033; i++)
+	std::cout << "Finished reading tile table offsets at 0x" << std::hex << m_inputFile.tellg() << std::endl;
+}
+
+void TSCB::readTileTable()
+{
+    for (size_t i = 0; i < m_tileTableOffsets.size(); i++)
     {
-        // store file position
-        uint32_t fileBookmark = m_tscbInputFile.tellg();
+		// jump to the correct offset
+		m_inputFile.seekg(std::streampos(m_tileTableOffsets[i]), std::ios::beg);
 
-        // read current tile offset
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_tiles[i].offset), 4);
+		// read a tile
+		TSCBTileInfo tileInfo;
 
-        m_tiles[i].offset = swap_endian<uint32_t>(m_tiles[i].offset);
+        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.centerX), 4);
+        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.centerY), 4);
+        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.edgeLength), 4);
+        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.unk0), 4);
+        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.unk1), 4);
+        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.unk2), 4);
+        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.unk3), 4);
+        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.unk4), 4);
+        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.stringOffset), 4);
+        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.unk5), 4);
+        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.unk6), 4);
+        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.unk7), 4);
 
-        // jump to material struct and read it
-        m_tscbInputFile.seekg(m_tiles[i].offset - 4, std::ios::cur);
+		// swap endian for all values
+        tileInfo.centerX = swap_endian<float>(tileInfo.centerX);
+        tileInfo.centerY = swap_endian<float>(tileInfo.centerY);
+        tileInfo.edgeLength = swap_endian<float>(tileInfo.edgeLength);
+        tileInfo.unk0 = swap_endian<float>(tileInfo.unk0);
+        tileInfo.unk1 = swap_endian<float>(tileInfo.unk1);
+        tileInfo.unk2 = swap_endian<float>(tileInfo.unk2);
+        tileInfo.unk3 = swap_endian<float>(tileInfo.unk3);
+        tileInfo.unk4 = swap_endian<uint32_t>(tileInfo.unk4);
+        tileInfo.stringOffset = swap_endian<uint32_t>(tileInfo.stringOffset);
+		tileInfo.stringOffset += uint32_t(m_inputFile.tellg());
+		tileInfo.stringOffset -= 16;
+        tileInfo.unk5 = swap_endian<uint32_t>(tileInfo.unk5);
+        tileInfo.unk6 = swap_endian<uint32_t>(tileInfo.unk6);
+        tileInfo.unk7 = swap_endian<uint32_t>(tileInfo.unk7);
 
-
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_tiles[i].centerX), 4);
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_tiles[i].centerY), 4);
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_tiles[i].edgeLength), 4);
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_tiles[i].unk0), 4);
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_tiles[i].unk1), 4);
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_tiles[i].unk2), 4);
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_tiles[i].unk3), 4);
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_tiles[i].unk4), 4);
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_tiles[i].stringOffset), 4);
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_tiles[i].unk5), 4);
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_tiles[i].unk6), 4);
-        m_tscbInputFile.read(reinterpret_cast<char*>(&m_tiles[i].unk7), 4);
-
-        m_tiles[i].centerX = swap_endian<float>(m_tiles[i].centerX);
-        m_tiles[i].centerY = swap_endian<float>(m_tiles[i].centerY);
-        m_tiles[i].edgeLength = swap_endian<float>(m_tiles[i].edgeLength);
-        m_tiles[i].unk0 = swap_endian<float>(m_tiles[i].unk0);
-        m_tiles[i].unk1 = swap_endian<float>(m_tiles[i].unk1);
-        m_tiles[i].unk2 = swap_endian<float>(m_tiles[i].unk2);
-        m_tiles[i].unk3 = swap_endian<float>(m_tiles[i].unk3);
-        m_tiles[i].unk4 = swap_endian<uint32_t>(m_tiles[i].unk4);
-        m_tiles[i].stringOffset = swap_endian<uint32_t>(m_tiles[i].stringOffset);
-        m_tiles[i].unk5 = swap_endian<uint32_t>(m_tiles[i].unk5);
-        m_tiles[i].unk6 = swap_endian<uint32_t>(m_tiles[i].unk6);
-        m_tiles[i].unk7 = swap_endian<uint32_t>(m_tiles[i].unk7);
-
-        m_tscbInputFile.seekg(m_tiles[i].stringOffset - 16, std::ios::cur);
-        m_tscbInputFile.read(m_tiles[i].tileName, 12);
-
-        // return to the stored offset for next read
-        m_tscbInputFile.seekg(fileBookmark + 4, std::ios::beg);
+		// add to vector
+		m_tileTable.push_back(tileInfo);
     }
 
-    writeFile();
+	std::cout << "Finished reading tile table at 0x" << std::hex << m_inputFile.tellg() << std::endl;
+}
+
+void TSCB::readTileNames()
+{
+	// assume we are at the start of the string table
+	for (size_t i = 0; i < m_tileTable.size(); i++)
+	{
+		m_inputFile.seekg(m_tileTable[i].stringOffset, std::ios::beg);
+
+		std::string tileName;
+
+		char c;
+
+		while (true)
+		{
+			m_inputFile.read(&c, sizeof(char));
+
+			// null terminator reached
+			if (c == '\0')
+			{
+				break;
+			}
+
+			tileName += c;
+		}
+
+		m_tileNames.push_back(tileName);
+	}
+
+	std::cout << "Finished reading tile names at 0x" << std::hex << m_inputFile.tellg() << std::endl << std::endl;
 }
 
 void TSCB::writeFile()
 {
-    // write header info
-    //m_tscbOutputFile << "Magic ID: " << m_headerInfo.magic << std::endl;
-    //m_tscbOutputFile << "Unknown: " << m_headerInfo.unknown << std::endl;
-    //m_tscbOutputFile << "Unknown 2: " << m_headerInfo.unknown2 << std::endl;
-    //m_tscbOutputFile << "String table offset: 0x" << std::hex << m_headerInfo.stringTableOffset << std::dec << std::endl;
-    //m_tscbOutputFile << "Unknown Float: " << m_headerInfo.unknownFloat << std::endl;
-    //m_tscbOutputFile << "Unknown Float 2: " << m_headerInfo.unknownFloat2 << std::endl;
-    //m_tscbOutputFile << "Material Lookup table count: " << m_headerInfo.materialLookupTableCount << std::endl;
-    //m_tscbOutputFile << "Tile table count: " << m_headerInfo.tileTableCount << std::endl;
-    //m_tscbOutputFile << "Unknown 3: " << m_headerInfo.unknown3 << std::endl;
-    //m_tscbOutputFile << "Unknown 4: " << m_headerInfo.unknown4 << std::endl;
-    //m_tscbOutputFile << "Unknown Float 3: " << m_headerInfo.unknownFloat3 << std::endl;
-    //m_tscbOutputFile << "Unknown 5: " << m_headerInfo.unknown5 << std::endl;
-    //m_tscbOutputFile << "Size of Material Lookup Table: 0x" << std::hex << m_headerInfo.sizeOfMaterialLookupTable << std::dec << std::endl << std::endl;
+	m_outputFile.open("output.txt", std::ios::trunc);
 
-    // write material table info
-    //for (int i = 0; i < 88; i++)
+	if (!m_outputFile.is_open())
+	{
+		std::cout << "Failed to open output.txt\n";
+	}
+
+ //   // write header info
+	//m_outputFile << "Magic ID: " << m_header.magic << std::endl;
+ //   m_outputFile << "unk: " << m_header.unk << std::endl;
+ //   m_outputFile << "unk 2: " << m_header.unk2 << std::endl;
+ //   m_outputFile << "String table offset: 0x" << std::hex << m_header.stringTableOffset << std::dec << std::endl;
+ //   m_outputFile << "unk Float: " << m_header.unkFloat << std::endl;
+ //   m_outputFile << "unk Float 2: " << m_header.unkFloat2 << std::endl;
+ //   m_outputFile << "Material Lookup table count: " << m_header.materialLookupTableCount << std::endl;
+ //   m_outputFile << "Tile table count: " << m_header.tileTableCount << std::endl;
+ //   m_outputFile << "unk 3: " << m_header.unk3 << std::endl;
+ //   m_outputFile << "unk 4: " << m_header.unk4 << std::endl;
+ //   m_outputFile << "unk Float 3: " << m_header.unkFloat3 << std::endl;
+ //   m_outputFile << "unk 5: " << m_header.unk5 << std::endl;
+ //   m_outputFile << "Size of Material Lookup Table: 0x" << std::hex << m_header.materialLookupTableSize << std::dec << std::endl << std::endl;
+
+ //   // write material table info
+ //   for (int i = 0; i < 88; i++)
+ //   {
+ //       m_outputFile << "Material offset: 0x" << std::hex << m_materialTableOffsets[i] << std::dec << std::endl;
+ //       m_outputFile << "Material index: " << m_materialTable[i].index << std::endl;
+ //       m_outputFile << "Material red: " << m_materialTable[i].red << std::endl;
+ //       m_outputFile << "Material green: " << m_materialTable[i].green << std::endl;
+ //       m_outputFile << "Material blue: " << m_materialTable[i].blue << std::endl;
+ //       m_outputFile << "Material alpha: " << m_materialTable[i].alpha << std::endl << std::endl;
+ //   }
+
+    //// write tile table info
+    //for (int i = 0; i < 9033; i++)
     //{
-    //    m_tscbOutputFile << "Material offset: 0x" << std::hex << m_materials[i].offset << std::dec << std::endl;
-    //    m_tscbOutputFile << "Material index: " << m_materials[i].index << std::endl;
-    //    m_tscbOutputFile << "Material red: " << m_materials[i].red << std::endl;
-    //    m_tscbOutputFile << "Material green: " << m_materials[i].green << std::endl;
-    //    m_tscbOutputFile << "Material blue: " << m_materials[i].blue << std::endl;
-    //    m_tscbOutputFile << "Material alpha: " << m_materials[i].alpha << std::endl << std::endl;
+    //    //m_outputFile << "Offset: 0x" << std::hex << m_tileTableOffsets[i] << std::dec << std::endl;
+    //    m_outputFile << "Tile " << m_tileNames[i] << std::endl;
+    //    m_outputFile << "Center X: " << m_tileTable[i].centerX << std::endl;
+    //    m_outputFile << "Center Y: " << m_tileTable[i].centerY << std::endl;
+    //    m_outputFile << "Edge Length: " << m_tileTable[i].edgeLength << std::endl << std::endl;
+    //    //m_outputFile << "unk0: " << m_tileTable[i].unk0 << std::endl;
+    //    //m_outputFile << "unk1: " << m_tileTable[i].unk1 << std::endl;
+    //    //m_outputFile << "unk2: " << m_tileTable[i].unk2 << std::endl;
+    //    //m_outputFile << "unk3: " << m_tileTable[i].unk3 << std::endl;
+    //    //m_outputFile << "unk4: " << m_tileTable[i].unk4 << std::endl;
+    //    //m_outputFile << "String Offset: 0x" << std::hex << m_tileTable[i].stringOffset << std::dec << std::endl;
+    //    //m_outputFile << "unk5: " << m_tileTable[i].unk5 << std::endl;
+    //    //m_outputFile << "unk6: " << m_tileTable[i].unk6 << std::endl;
+    //    //m_outputFile << "unk7: " << m_tileTable[i].unk7 << std::endl << std::endl;
     //}
 
-    // write tile table info
-    for (int i = 0; i < 9033; i++)
-    {
-        //m_tscbOutputFile << "Offset: 0x" << std::hex << m_tiles[i].offset << std::dec << std::endl;
-        //m_tscbOutputFile << "Tile " << m_tiles[i].tileName << std::endl;
-        m_tscbOutputFile << "Center X: " << m_tiles[i].centerX << std::endl;
-        m_tscbOutputFile << "Center Y: " << m_tiles[i].centerY << std::endl;
-        m_tscbOutputFile << "Edge Length: " << m_tiles[i].edgeLength << std::endl << std::endl;
-        //m_tscbOutputFile << "unk0: " << m_tiles[i].unk0 << std::endl;
-        //m_tscbOutputFile << "unk1: " << m_tiles[i].unk1 << std::endl;
-        //m_tscbOutputFile << "unk2: " << m_tiles[i].unk2 << std::endl;
-        //m_tscbOutputFile << "unk3: " << m_tiles[i].unk3 << std::endl;
-        //m_tscbOutputFile << "unk4: " << m_tiles[i].unk4 << std::endl;
-        //m_tscbOutputFile << "String Offset: 0x" << std::hex << m_tiles[i].stringOffset << std::dec << std::endl;
-        //m_tscbOutputFile << "unk5: " << m_tiles[i].unk5 << std::endl;
-        //m_tscbOutputFile << "unk6: " << m_tiles[i].unk6 << std::endl;
-        //m_tscbOutputFile << "unk7: " << m_tiles[i].unk7 << std::endl << std::endl;
-    }
+	std::vector<std::string> filenames = getFileNamesByLOD(3);
 
-    m_tscbInputFile.close();
-    m_tscbOutputFile.close();
+	for (std::string filename : filenames)
+	{
+		m_outputFile << filename << std::endl;
+	}
+
+    m_outputFile.close();
+}
+
+// returns every filename
+std::vector<std::string> TSCB::getAllFileNames()
+{
+	return m_tileNames;
+}
+
+bool sortByPosition(const std::string& a, const std::string& b)
+{
+	glm::vec2 posa = TSCB::getInstance().getTileLocation(a);
+	glm::vec2 posb = TSCB::getInstance().getTileLocation(b);
+
+	if (posa.y != posb.y)
+	{
+		return posa.y < posb.y;
+	}
+
+	return posa.x < posb.x;
+}
+
+// returns every file that is used in the specified LOD
+std::vector<std::string> TSCB::getFileNamesByLOD(int LOD)
+{
+	char c = std::to_string(LOD)[0];
+	std::vector<std::string> filenames;
+
+	for (auto iter = m_tileNames.begin(); iter != m_tileNames.end(); iter++)
+	{
+		if ((*iter)[1] == c)
+		{
+			filenames.push_back(*iter);
+		}
+	}
+
+	std::sort(filenames.begin(), filenames.end(), sortByPosition);
+
+	return filenames;
+}
+
+TSCBTileInfo TSCB::getTileByName(const std::string& name)
+{
+	for (size_t i = 0; i < m_tileNames.size(); i++)
+	{
+		if (m_tileNames[i] == name)
+		{
+			return m_tileTable[i];
+		}
+	}
+
+	return m_tileTable[0];
+}
+
+// get tile coordinates for tile wit filename
+glm::vec2 TSCB::getTileLocation(const std::string& filename)
+{
+	TSCBTileInfo tile = getTileByName(filename);
+
+	return glm::vec2(tile.centerX, tile.centerY);
+}
+
+// write image containing the colors from the material table
+void TSCB::writeColorImage(std::string& filename)
+{
+	// create and 88 x 1 image
+	char pixelData[88][4];
+
+	for (int x = 0; x < 88; x++)
+	{
+		pixelData[x][0] = (char)(m_materialTable[x].red * 255.0f);
+		pixelData[x][1] = (char)(m_materialTable[x].green * 255.0f);
+		pixelData[x][2] = (char)(m_materialTable[x].blue * 255.0f);
+		pixelData[x][3] = (char)(m_materialTable[x].alpha * 255.0f);
+	}
+
+	stbi_write_png((filename + ".png").c_str(), 88, 1, 4, pixelData, 4);
+}
+
+// adjust tile centerX and centerY values to line up better with a grid
+void TSCB::fixTileOffsets()
+{
+	int currentLOD = 0;
+
+	for (size_t i = 0; i < m_tileTable.size(); i++)
+	{
+		if (m_tileNames[i].substr(1, 1) != std::to_string(currentLOD))
+		{
+			currentLOD++;
+		}
+
+		m_tileTable[i].centerX -= lowest[currentLOD].x;
+		m_tileTable[i].centerX /= m_tileTable[i].edgeLength;
+		m_tileTable[i].centerY -= lowest[currentLOD].y;
+		m_tileTable[i].centerY /= m_tileTable[i].edgeLength;
+	}
 }

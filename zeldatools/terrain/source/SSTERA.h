@@ -2,16 +2,17 @@
 #include <fstream>
 #include <cstdint>
 
-class SARC
+class SSTERA
 {
 public:
-    SARC(std::string& fileName);
-    ~SARC();
+    SSTERA();
+    void unpackSSTERA(const std::string& fileName);
+    ~SSTERA();
 
 private:
 
-    std::ifstream m_SARCinputFile;
-    std::ofstream m_SARCoutputFiles[4];
+    std::ifstream m_inputFile;
+    std::ofstream m_outputFiles[4];
 
     void readHeaderInfo();
     void readFile();

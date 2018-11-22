@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -18,36 +18,80 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\Camera.cpp" />
+    <ClCompile Include="source\Color.cpp" />
+    <ClCompile Include="source\FlyCamera.cpp" />
+    <ClCompile Include="source\glad.c" />
+    <ClCompile Include="source\HGHT.cpp" />
+    <ClCompile Include="source\Input.cpp" />
+    <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\MATE.cpp" />
+    <ClCompile Include="source\Terrain.cpp" />
+    <ClCompile Include="source\OpenGLApplication.cpp" />
+    <ClCompile Include="source\Shader.cpp" />
+    <ClCompile Include="source\SSTERA.cpp" />
+    <ClCompile Include="source\Texture2D.cpp" />
+    <ClCompile Include="source\Texture3D.cpp" />
+    <ClCompile Include="source\TextureHolder.cpp" />
+    <ClCompile Include="source\Time.cpp" />
+    <ClCompile Include="source\TSCB.cpp" />
+    <ClCompile Include="source\WATER.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\Array2D.h" />
+    <ClInclude Include="source\Array3D.h" />
+    <ClInclude Include="source\Camera.h" />
+    <ClInclude Include="source\Color.h" />
+    <ClInclude Include="source\endian.h" />
+    <ClInclude Include="source\filenameUtils.h" />
+    <ClInclude Include="source\FlyCamera.h" />
+    <ClInclude Include="source\HGHT.h" />
+    <ClInclude Include="source\Input.h" />
+    <ClInclude Include="source\Light.h" />
+    <ClInclude Include="source\MATE.h" />
+    <ClInclude Include="source\Terrain.h" />
+    <ClInclude Include="source\OpenGLApplication.h" />
+    <ClInclude Include="source\Shader.h" />
+    <ClInclude Include="source\SSTERA.h" />
+    <ClInclude Include="source\Texture2D.h" />
+    <ClInclude Include="source\Texture3D.h" />
+    <ClInclude Include="source\TextureHolder.h" />
+    <ClInclude Include="source\Time.h" />
+    <ClInclude Include="source\TSCB.h" />
+    <ClInclude Include="source\Vertex.h" />
+    <ClInclude Include="source\WATER.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{974C710E-F908-4E5D-948F-7586308A896B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>terrain</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -71,25 +115,29 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>C:\Users\Andrew\Desktop\terrain\</OutDir>
+    <OutDir>$(ProjectDir)\bin\</OutDir>
     <IntDir>$(ProjectDir)\build\($Configuration)\</IntDir>
     <TargetName>$(ProjectName)_DEBUG</TargetName>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>$(ProjectName)_DEBUG</TargetName>
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>C:\Users\Andrew\Desktop\terrain\</OutDir>
+    <OutDir>$(ProjectDir)\bin\</OutDir>
     <IntDir>$(ProjectDir)\build\($Configuration)\</IntDir>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>C:\Users\Andrew\Desktop\terrain\</OutDir>
+    <OutDir>$(ProjectDir)\bin\</OutDir>
     <IntDir>$(ProjectDir)\build\($Configuration)\</IntDir>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>C:\Users\Andrew\Desktop\terrain\</OutDir>
+    <OutDir>$(ProjectDir)\bin\</OutDir>
     <IntDir>$(ProjectDir)\build\($Configuration)\</IntDir>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -98,10 +146,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\include\32\;$(SolutionDir)\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <StackReserveSize>4194304 </StackReserveSize>
+      <AdditionalLibraryDirectories>$(SolutionDir)\lib\32\;$(SolutionDir)\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -111,10 +163,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\include\64\;$(SolutionDir)\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <StackReserveSize>4194304 </StackReserveSize>
+      <AdditionalLibraryDirectories>$(SolutionDir)\lib\64\;$(SolutionDir)\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -126,12 +182,16 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\include\32\;$(SolutionDir)\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <StackReserveSize>4194304 </StackReserveSize>
+      <AdditionalLibraryDirectories>$(SolutionDir)\lib\32\;$(SolutionDir)\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -143,34 +203,18 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\include\64\;$(SolutionDir)\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <StackReserveSize>4194304 </StackReserveSize>
+      <AdditionalLibraryDirectories>$(SolutionDir)\lib\64\;$(SolutionDir)\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="source\HeightMap.cpp" />
-    <ClCompile Include="source\Material.cpp" />
-    <ClCompile Include="source\main.cpp" />
-    <ClCompile Include="source\Model.cpp" />
-    <ClCompile Include="source\Tile.h" />
-    <ClCompile Include="source\SARC.cpp" />
-    <ClCompile Include="source\TSCB.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="source\endian.h" />
-    <ClInclude Include="source\HeightMap.h" />
-    <ClInclude Include="source\Material.h" />
-    <ClInclude Include="source\Model.h" />
-    <ClInclude Include="source\SARC.h" />
-    <ClInclude Include="source\TSCBTile.h" />
-    <ClInclude Include="source\TSCB.h" />
-    <ClInclude Include="source\TSCBHeader.h" />
-    <ClInclude Include="source\TSCBMaterial.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
