@@ -37,24 +37,29 @@ public:
 		return fs::path(filename).stem().string();
 	}
 	
+	static std::string getRootFolder()
+	{
+		return std::string("C:\\Users\\s170837\\Desktop\\z");
+	}
+
 	static std::string getHGHTFolder()
 	{
-		return std::string("C:\\Users\\s170837\\Desktop\\z\\hght");
+		return getRootFolder() + "\\hght";
 	}
 
 	static std::string getMATEFolder()
 	{
-		return std::string("C:\\Users\\s170837\\Desktop\\z\\mate");
+		return getRootFolder() + "\\mate";
 	}
 
 	static std::string getGRASSFolder()
 	{
-		return std::string("C:\\Users\\s170837\\Desktop\\z\\grass");
+		return getRootFolder() + "\\grass";
 	}
 
 	static std::string getWATERFolder()
 	{
-		return std::string("C:\\Users\\s170837\\Desktop\\z\\water");
+		return getRootFolder() + "\\water";
 	}
 
 	static std::string getRandomFile(const std::string& folder)
