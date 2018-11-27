@@ -78,7 +78,7 @@ void OpenGLApplication::setup()
 	m_terrainShader = Shader((fs::current_path().string() + "\\resources\\shaders\\terrainShader.vs").c_str(),
 		(fs::current_path().string() + "\\resources\\shaders\\terrainShader.fs").c_str());
 
-	for (auto& iter : fs::directory_iterator("C:\\Users\\s170837\\desktop\\z\\hght"))
+	for (auto& iter : fs::directory_iterator(filenameUtils::getHGHTFolder()))
 	{
 		m_filenames.push_back(iter.path().stem().string());
 	}
