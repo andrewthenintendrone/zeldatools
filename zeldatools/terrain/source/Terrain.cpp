@@ -5,8 +5,7 @@
 #include "HGHT.h"
 #include "MATE.h"
 #include "WATER.h"
-#include <experimental\filesystem>
-namespace fs = std::experimental::filesystem;
+#include "filenameUtils.h"
 
 #include <fstream>
 #include <iostream>
@@ -16,15 +15,22 @@ namespace fs = std::experimental::filesystem;
 
 Terrain::~Terrain()
 {
-	glDeleteVertexArrays(1, &vbo);
+	glDeleteVertexArrays(1, &vao);
 	glDeleteBuffers(1, &vbo);
 	glDeleteBuffers(1, &ibo);
 }
 
 void Terrain::loadData(const std::string& filename, bool loadMaterial, bool loadWater)
 {
+	m_verts.clear();
+	m_indices.clear();
+
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
+	glDeleteBuffers(1, &ibo);
+
 	// filename is just the stem
-	m_hght.load("C:\\Users\\Andrew\\Desktop\\zelda\\terrain\\hght\\" + filename + ".hght");
+	m_hght.load(filenameUtils::getHGHTFolder() + "\\" + filename + ".hght");
 
 	// create terrain vertex grid
 	for (int y = 0, i = 0; y < 256; y++)
@@ -75,7 +81,7 @@ void Terrain::loadData(const std::string& filename, bool loadMaterial, bool load
 
 	if (loadMaterial)
 	{
-		m_mate.load("C:\\Users\\Andrew\\Desktop\\zelda\\terrain\\mate\\" + filename + ".mate");
+		m_mate.load(filenameUtils::getMATEFolder() + "\\" + filename + ".mate");
 
 		for (int y = 0, i = 0; y < 256; y++)
 		{
@@ -93,9 +99,9 @@ void Terrain::loadData(const std::string& filename, bool loadMaterial, bool load
 		}
 	}
 
-	if (loadWater)
+	if (loadWater && fs::exists(fs::path(filenameUtils::getWATERFolder() + "\\" + filename + ".water.extm")))
 	{
-		m_water.load("C:\\Users\\Andrew\\Desktop\\zelda\\terrain\\water\\" + filename + ".water.extm");
+		m_water.load(filenameUtils::getWATERFolder() + "\\" + filename + ".water.extm");
 
 		// create water vertex grid
 		for (int y = 0, i = 65536; y < 64; y++)

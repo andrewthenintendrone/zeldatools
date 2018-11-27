@@ -2,8 +2,7 @@
 
 #include <glm\gtc\matrix_inverse.hpp>
 
-#include <experimental\filesystem>
-namespace fs = std::experimental::filesystem;
+#include "filenameUtils.h"
 #include <iostream>
 
 #include "Time.h"
@@ -79,7 +78,12 @@ void OpenGLApplication::setup()
 	m_terrainShader = Shader((fs::current_path().string() + "\\resources\\shaders\\terrainShader.vs").c_str(),
 		(fs::current_path().string() + "\\resources\\shaders\\terrainShader.fs").c_str());
 
-	m_terrain.loadData("5600000C7B", true, false);
+	for (auto& iter : fs::directory_iterator("C:\\Users\\s170837\\desktop\\z\\hght"))
+	{
+		m_filenames.push_back(iter.path().stem().string());
+	}
+
+	m_terrain.loadData(m_filenames[m_filenameIndex], true, true);
 
 	// set up light(s)
 	DirectionalLight dLight;
@@ -205,6 +209,54 @@ void OpenGLApplication::processInput()
 	if (Input::getInstance().getPressed(GLFW_KEY_L))
 	{
 		m_heightScale *= 2.0f;
+	}
+
+	// 1 / 2 load new files (skip 1)
+	if (Input::getInstance().getPressed(GLFW_KEY_1))
+	{
+		m_filenameIndex = (m_filenameIndex - 1) % m_filenames.size();
+		m_terrain.loadData(m_filenames[m_filenameIndex], true, true);
+	}
+	if (Input::getInstance().getPressed(GLFW_KEY_2))
+	{
+		m_filenameIndex = (m_filenameIndex + 1) % m_filenames.size();
+		m_terrain.loadData(m_filenames[m_filenameIndex], true, true);
+	}
+
+	// 3 / 4 load new files (skip 10)
+	if (Input::getInstance().getPressed(GLFW_KEY_3))
+	{
+		m_filenameIndex = (m_filenameIndex - 10) % m_filenames.size();
+		m_terrain.loadData(m_filenames[m_filenameIndex], true, true);
+	}
+	if (Input::getInstance().getPressed(GLFW_KEY_4))
+	{
+		m_filenameIndex = (m_filenameIndex + 10) % m_filenames.size();
+		m_terrain.loadData(m_filenames[m_filenameIndex], true, true);
+	}
+
+	// 5 / 6 load new files (skip 100)
+	if (Input::getInstance().getPressed(GLFW_KEY_5))
+	{
+		m_filenameIndex = (m_filenameIndex - 100) % m_filenames.size();
+		m_terrain.loadData(m_filenames[m_filenameIndex], true, true);
+	}
+	if (Input::getInstance().getPressed(GLFW_KEY_6))
+	{
+		m_filenameIndex = (m_filenameIndex + 100) % m_filenames.size();
+		m_terrain.loadData(m_filenames[m_filenameIndex], true, true);
+	}
+
+	// 7 / 8 load new files (skip 1000)
+	if (Input::getInstance().getPressed(GLFW_KEY_7))
+	{
+		m_filenameIndex = (m_filenameIndex - 1000) % m_filenames.size();
+		m_terrain.loadData(m_filenames[m_filenameIndex], true, true);
+	}
+	if (Input::getInstance().getPressed(GLFW_KEY_8))
+	{
+		m_filenameIndex = (m_filenameIndex + 1000) % m_filenames.size();
+		m_terrain.loadData(m_filenames[m_filenameIndex], true, true);
 	}
 
 	// draw in wireframe if space is held

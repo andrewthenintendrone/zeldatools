@@ -39,22 +39,22 @@ public:
 	
 	static std::string getHGHTFolder()
 	{
-		return std::string("C:\\Users\\Andrew\\Desktop\\zelda\\terrain\\hght");
+		return std::string("C:\\Users\\s170837\\Desktop\\z\\hght");
 	}
 
 	static std::string getMATEFolder()
 	{
-		return std::string("C:\\Users\\Andrew\\Desktop\\zelda\\terrain\\mate");
+		return std::string("C:\\Users\\s170837\\Desktop\\z\\mate");
 	}
 
 	static std::string getGRASSFolder()
 	{
-		return std::string("C:\\Users\\Andrew\\Desktop\\zelda\\terrain\\grass");
+		return std::string("C:\\Users\\s170837\\Desktop\\z\\grass");
 	}
 
 	static std::string getWATERFolder()
 	{
-		return std::string("C:\\Users\\Andrew\\Desktop\\zelda\\terrain\\water");
+		return std::string("C:\\Users\\s170837\\Desktop\\z\\water");
 	}
 
 	static std::string getRandomFile(const std::string& folder)

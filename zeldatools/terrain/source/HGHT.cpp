@@ -89,6 +89,8 @@ void HGHT::writeOBJ(const std::string& filename)
 // read heights from file
 void HGHT::readHeights()
 {
+	m_heights = Array2D<uint16_t>(256, 256);
+
 	std::ifstream file;
 
 	file.open(m_filename, std::ios::_Nocreate | std::ios::binary);

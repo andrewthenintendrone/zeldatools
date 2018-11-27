@@ -58,4 +58,7 @@ private:
 
 	float m_textureScale;
 	float m_heightScale;
+
+	std::vector<std::string> m_filenames;
+	int m_filenameIndex = 0;
 };

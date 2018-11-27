@@ -42,26 +42,26 @@ void dumpMATE(const std::string& filename)
 int main(int argc, char* argv[])
 {
 	// create output folder if it does not already exist
-	if (!fs::exists("C:\\Users\\Andrew\\Desktop\\zelda\\terrain\\mate\\images\\"))
-	{
-		fs::create_directory("C:\\Users\\Andrew\\Desktop\\zelda\\terrain\\mate\\images\\");
-	}
+	//if (!fs::exists("C:\\Users\\Andrew\\Desktop\\zelda\\terrain\\mate\\images\\"))
+	//{
+	//	fs::create_directory("C:\\Users\\Andrew\\Desktop\\zelda\\terrain\\mate\\images\\");
+	//}
 
-	std::vector<std::string> filenames;
+	//std::vector<std::string> filenames;
 
-	// count files (probably can be improved)
-	for (auto& iter : fs::directory_iterator("C:\\Users\\Andrew\\Desktop\\zelda\\terrain\\mate\\"))
-	{
-		if (iter.path().has_extension())
-		{
-			filenames.push_back(iter.path().string());
-		}
-	}
+	//// count files (probably can be improved)
+	//for (auto& iter : fs::directory_iterator("C:\\Users\\Andrew\\Desktop\\zelda\\terrain\\mate\\"))
+	//{
+	//	if (iter.path().has_extension())
+	//	{
+	//		filenames.push_back(iter.path().string());
+	//	}
+	//}
 
 	//TextureHolder::getInstance();
 
 	// create threads
-	std::thread threads[maxThreads];
+	/*std::thread threads[maxThreads];
 
 	int numFiles = filenames.size();
 	int filesToDo;
@@ -82,10 +82,10 @@ int main(int argc, char* argv[])
 		completedFiles += filesToDo;
 	}
 
-	system("pause");
+	system("pause");*/
 
-	//OpenGLApplication app;
-	//app.run();
+	OpenGLApplication app;
+	app.run();
 
     return 0;
 }
