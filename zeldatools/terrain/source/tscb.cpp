@@ -323,7 +323,7 @@ TSCBTileInfo TSCB::getTileByName(const std::string& name)
 	return m_tileTable[0];
 }
 
-// get tile coordinates for tile wit filename
+// get tile coordinates for tile with filename
 glm::vec2 TSCB::getTileLocation(const std::string& filename)
 {
 	TSCBTileInfo tile = getTileByName(filename);

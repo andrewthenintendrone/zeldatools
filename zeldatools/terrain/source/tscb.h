@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <glm\glm.hpp>
+#include "Color.h"
 
 // TSCB header struct
 struct TSCBHeader

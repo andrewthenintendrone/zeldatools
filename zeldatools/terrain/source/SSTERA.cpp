@@ -3,26 +3,29 @@
 #include <string>
 #include "endian.h"
 #include <Windows.h>
+#include "filenameUtils.h"
 
-SSTERA::SSTERA()
+SSTERA::SSTERA(const std::string& filename)
 {
+	m_filename = filename;
 
+	// open input file
+	m_inputFile.open(m_filename, std::ios::binary | std::ios::_Nocreate);
+
+	// check if file was opened correctly
+	if (!m_inputFile.is_open())
+	{
+		std::cout << "Failed to open " << m_filename << std::endl;
+		system("pause");
+	}
+
+	readHeaderInfo();
+	readFile();
 }
 
-// processes the file
-void SSTERA::unpackSSTERA(const std::string& fileName)
+SSTERA::SSTERA(HGHT hghts[4])
 {
-    // open input file
-    m_inputFile.open(fileName, std::ios::binary | std::ios::_Nocreate);
-
-    // check if file was opened correctly
-    if (!m_inputFile.is_open())
-    {
-        std::cout << "Failed to open " << fileName << std::endl;
-        system("pause");
-    }
-
-    readHeaderInfo();
+	
 }
 
 SSTERA::~SSTERA()
@@ -51,10 +54,8 @@ void SSTERA::readHeaderInfo()
     {
         // jump to start of filename table + current file name
         m_inputFile.seekg(0x28 + 0x10 * (m_numFiles + i), std::ios::beg);
-        m_inputFile.read(reinterpret_cast<char*>(&m_fileNames[i]), 0x10);
+        m_inputFile.read(reinterpret_cast<char*>(&m_filenames[i]), 0x10);
     }
-
-    readFile();
 }
 
 // reads each file into memory
@@ -74,20 +75,18 @@ void SSTERA::readFile()
             }
         }
     }
-
-    writeFile();
 }
 
 // wries files
-void SSTERA::writeFile()
+void SSTERA::writeFiles()
 {
     for (int i = 0; i < m_numFiles; i++)
     {
-        //m_outputFiles[i].open(getProgramPath() + "\\" + m_fileNames[i], std::ios::binary | std::ios::trunc);
+        m_outputFiles[i].open(filenameUtils::getFileDirectory(m_filename) + "\\" + m_filenames[i], std::ios::binary | std::ios::trunc);
 
         if (!m_outputFiles[i].is_open())
         {
-            std::cout << "failed to open " << m_fileNames[i] << std::endl;
+            std::cout << "failed to open " << m_filenames[i] << std::endl;
             system("pause");
         }
 

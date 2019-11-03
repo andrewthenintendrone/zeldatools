@@ -39,7 +39,7 @@ public:
 	
 	static std::string getRootFolder()
 	{
-		return std::string("C:\\Users\\s170837\\Desktop\\z");
+		return std::string("C:\\Users\\Andrew\\Desktop\\zelda\\terrain");
 	}
 
 	static std::string getHGHTFolder()

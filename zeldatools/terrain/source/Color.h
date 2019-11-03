@@ -30,6 +30,8 @@ public:
 	glm::vec3 asVec3() const;
 	glm::vec4 asVec4() const;
 
+	static Color FromArgb(uint8_t alpha, uint8_t red, uint8_t green, uint8_t blue);
+
 	void operator = (const Color& other);
 	Color operator + (const Color& other) const;
 	void operator += (const Color& other);

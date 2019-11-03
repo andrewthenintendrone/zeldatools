@@ -23,7 +23,7 @@
       <UniqueIdentifier>{7d1a07c7-d162-4804-997f-f0de33ff1dde}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Rendering">
-      <UniqueIdentifier>{855768d6-bf1c-4ceb-91ed-fde18d8e8572}</UniqueIdentifier>
+      <UniqueIdentifier>{432fc362-c7b5-48c8-881a-33121e73d05e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -42,9 +42,6 @@
     <ClCompile Include="source\TSCB.cpp">
       <Filter>Source Files\FileTypes</Filter>
     </ClCompile>
-    <ClCompile Include="source\TextureHolder.cpp">
-      <Filter>Source Files\Helper</Filter>
-    </ClCompile>
     <ClCompile Include="source\Color.cpp">
       <Filter>Source Files\FileTypes</Filter>
     </ClCompile>
@@ -53,6 +50,15 @@
     </ClCompile>
     <ClCompile Include="source\WATER.cpp">
       <Filter>Source Files\FileTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Texture3D.cpp">
+      <Filter>Source Files\FileTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GRASS.cpp">
+      <Filter>Source Files\FileTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\TextureHolder.cpp">
+      <Filter>Source Files\Helper</Filter>
     </ClCompile>
     <ClCompile Include="source\Camera.cpp">
       <Filter>Source Files\Rendering</Filter>
@@ -63,7 +69,7 @@
     <ClCompile Include="source\glad.c">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="source\OpenGLApplication.cpp">
+    <ClCompile Include="source\Input.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="source\Shader.cpp">
@@ -72,14 +78,11 @@
     <ClCompile Include="source\Time.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="source\OpenGLApplication.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
     <ClCompile Include="source\Terrain.cpp">
       <Filter>Source Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Input.cpp">
-      <Filter>Source Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Texture3D.cpp">
-      <Filter>Source Files\FileTypes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -101,9 +104,6 @@
     <ClInclude Include="source\TSCB.h">
       <Filter>Source Files\FileTypes</Filter>
     </ClInclude>
-    <ClInclude Include="source\TextureHolder.h">
-      <Filter>Source Files\Helper</Filter>
-    </ClInclude>
     <ClInclude Include="source\filenameUtils.h">
       <Filter>Source Files\Helper</Filter>
     </ClInclude>
@@ -119,16 +119,25 @@
     <ClInclude Include="source\WATER.h">
       <Filter>Source Files\FileTypes</Filter>
     </ClInclude>
+    <ClInclude Include="source\Texture3D.h">
+      <Filter>Source Files\FileTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\GRASS.h">
+      <Filter>Source Files\FileTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\TextureHolder.h">
+      <Filter>Source Files\Helper</Filter>
+    </ClInclude>
     <ClInclude Include="source\Camera.h">
       <Filter>Source Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="source\FlyCamera.h">
       <Filter>Source Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="source\Light.h">
+    <ClInclude Include="source\Input.h">
       <Filter>Source Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="source\OpenGLApplication.h">
+    <ClInclude Include="source\Light.h">
       <Filter>Source Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="source\Shader.h">
@@ -140,14 +149,11 @@
     <ClInclude Include="source\Vertex.h">
       <Filter>Source Files\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="source\OpenGLApplication.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
     <ClInclude Include="source\Terrain.h">
       <Filter>Source Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Input.h">
-      <Filter>Source Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Texture3D.h">
-      <Filter>Source Files\FileTypes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

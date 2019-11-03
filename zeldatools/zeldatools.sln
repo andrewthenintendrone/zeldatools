@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.539
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "terrain", "terrain\terrain.vcxproj", "{974C710E-F908-4E5D-948F-7586308A896B}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "terrain", "terrain\terrain.
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "yaz0dec", "yaz0dec\yaz0dec.vcxproj", "{B509D1FD-C719-4B31-8040-9EC70509FD69}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OcarinaOfTime3DObjectScaler", "OcarinaOfTime3DObjectScaler\OcarinaOfTime3DObjectScaler.vcxproj", "{AF316A86-4B9C-4F03-88B9-76A0BFB9CF81}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,8 +36,19 @@ Global
 		{B509D1FD-C719-4B31-8040-9EC70509FD69}.Release|x64.Build.0 = Release|x64
 		{B509D1FD-C719-4B31-8040-9EC70509FD69}.Release|x86.ActiveCfg = Release|Win32
 		{B509D1FD-C719-4B31-8040-9EC70509FD69}.Release|x86.Build.0 = Release|Win32
+		{AF316A86-4B9C-4F03-88B9-76A0BFB9CF81}.Debug|x64.ActiveCfg = Debug|x64
+		{AF316A86-4B9C-4F03-88B9-76A0BFB9CF81}.Debug|x64.Build.0 = Debug|x64
+		{AF316A86-4B9C-4F03-88B9-76A0BFB9CF81}.Debug|x86.ActiveCfg = Debug|Win32
+		{AF316A86-4B9C-4F03-88B9-76A0BFB9CF81}.Debug|x86.Build.0 = Debug|Win32
+		{AF316A86-4B9C-4F03-88B9-76A0BFB9CF81}.Release|x64.ActiveCfg = Release|x64
+		{AF316A86-4B9C-4F03-88B9-76A0BFB9CF81}.Release|x64.Build.0 = Release|x64
+		{AF316A86-4B9C-4F03-88B9-76A0BFB9CF81}.Release|x86.ActiveCfg = Release|Win32
+		{AF316A86-4B9C-4F03-88B9-76A0BFB9CF81}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {19448885-D609-4B0C-8CB3-7CBCADD97277}
 	EndGlobalSection
 EndGlobal

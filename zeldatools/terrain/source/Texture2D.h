@@ -1,5 +1,6 @@
 #pragma once
 #include "Color.h"
+#include <string>
 
 class Texture2D
 {
@@ -13,6 +14,8 @@ public:
 	void load(const char* filename);
 
 	void bind(unsigned int slot) const;
+
+	void save(const std::string& filename);
 
 	unsigned int getHandle() const { return m_glHandle; }
 

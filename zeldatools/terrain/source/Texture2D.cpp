@@ -5,6 +5,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb\stb_image.h"
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb\stb_image_write.h"
+
 Texture2D::Texture2D()
 {
 }
@@ -102,6 +105,11 @@ void Texture2D::bind(unsigned int slot) const
 {
 	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_2D, m_glHandle);
+}
+
+void Texture2D::save(const std::string& filename)
+{
+	stbi_write_png(filename.c_str(), m_width, m_height, 4, m_buffer, m_width * 4);
 }
 
 Color Texture2D::getPixel(int x, int y)

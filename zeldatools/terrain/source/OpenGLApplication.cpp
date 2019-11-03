@@ -103,7 +103,7 @@ void OpenGLApplication::setup()
 	TextureHolder::getInstance();
 
 	m_textureScale = 1.0f;
-	m_heightScale = 1.0f;
+	m_heightScale = 1.0f / 4096.0f;
 }
 
 void OpenGLApplication::run()
@@ -158,6 +158,9 @@ void OpenGLApplication::render()
 	// set texture scale
 	m_terrainShader.setFloat("textureScale", m_textureScale);
 
+	// set rotation
+	m_terrainShader.setFloat("testValue", rotation);
+
 	m_terrain.draw(m_terrainShader);
 
 	// swap buffers and poll window events
@@ -199,6 +202,16 @@ void OpenGLApplication::processInput()
 	if (Input::getInstance().getPressed(GLFW_KEY_P))
 	{
 		m_textureScale *= 2.0f;
+	}
+
+	// plus / minus decrease / increase texture rotation
+	if (Input::getInstance().getPressed(GLFW_KEY_KP_ADD))
+	{
+		rotation += 5.0f;
+	}
+	if (Input::getInstance().getPressed(GLFW_KEY_KP_SUBTRACT))
+	{
+		rotation -= 5.0f;
 	}
 
 	// K / L decrease / increase height scale
@@ -257,6 +270,12 @@ void OpenGLApplication::processInput()
 	{
 		m_filenameIndex = (m_filenameIndex + 1000) % m_filenames.size();
 		m_terrain.loadData(m_filenames[m_filenameIndex], true, true);
+	}
+
+	// 9 jumps to specific file
+	if (Input::getInstance().getPressed(GLFW_KEY_9))
+	{
+		m_terrain.loadData("580000C7BC", true, true);
 	}
 
 	// draw in wireframe if space is held

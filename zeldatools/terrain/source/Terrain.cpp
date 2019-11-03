@@ -147,7 +147,8 @@ void Terrain::loadData(const std::string& filename, bool loadMaterial, bool load
 			{
 				if (x > 0 && x < 63 && y > 0 && y < 63)
 				{
-					m_verts[i].normal = glm::vec4(getTriangleNormal(i), 0.0f);
+					/*m_verts[i].normal = glm::vec4(getTriangleNormal(i), 0.0f);*/
+					m_verts[i].normal = glm::vec4(0, 1, 0, 0);
 				}
 				else
 				{
@@ -162,7 +163,7 @@ void Terrain::loadData(const std::string& filename, bool loadMaterial, bool load
 
 void Terrain::initialise()
 {
-	assert(vao == 0);
+	//assert(vao == 0);
 
 	// generate buffers
 	glGenBuffers(1, &vbo);

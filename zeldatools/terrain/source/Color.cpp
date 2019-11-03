@@ -36,6 +36,11 @@ glm::vec4 Color::asVec4() const
 	return glm::vec4((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, (float)a / 255.0f);
 }
 
+Color Color::FromArgb(uint8_t alpha, uint8_t red, uint8_t green, uint8_t blue)
+{
+	return Color(red, green, blue, alpha);
+}
+
 void Color::operator = (const Color& other)
 {
 	value = other.value;
