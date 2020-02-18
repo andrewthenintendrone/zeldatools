@@ -1,5 +1,6 @@
 #pragma once
 #include "Array2D.h"
+#include "Texture2D.h"
 
 struct WATERInfo
 {
@@ -18,6 +19,8 @@ public:
 	WATER(const std::string& filename);
 
 	void load(const std::string& filename);
+
+	Texture2D getTexture() const;
 
 	// write files
 	void writeTexture(const std::string& filename);

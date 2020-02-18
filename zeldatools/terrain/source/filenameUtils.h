@@ -28,7 +28,7 @@ public:
 	// returns the file name without the extension (e.g "C:\Users\***\Documents\document")
 	static std::string getFilenameNoExtension(const std::string& filename)
 	{
-		return fs::path(filename).parent_path().string() + "\\" + fs::path(filename).stem().string();
+		return fs::path(filename).parent_path().string() + "/" + fs::path(filename).stem().string();
 	}
 
 	// returns the file name without the extension or directory (e.g "document")
@@ -39,27 +39,27 @@ public:
 	
 	static std::string getRootFolder()
 	{
-		return std::string("C:\\Users\\Andrew\\Desktop\\zelda\\terrain");
+		return std::string("C:/Users/Andrew/Desktop/zelda/terrain");
 	}
 
 	static std::string getHGHTFolder()
 	{
-		return getRootFolder() + "\\hght";
+		return getRootFolder() + "/hght";
 	}
 
 	static std::string getMATEFolder()
 	{
-		return getRootFolder() + "\\mate";
+		return getRootFolder() + "/mate";
 	}
 
 	static std::string getGRASSFolder()
 	{
-		return getRootFolder() + "\\grass";
+		return getRootFolder() + "/grass";
 	}
 
 	static std::string getWATERFolder()
 	{
-		return getRootFolder() + "\\water";
+		return getRootFolder() + "/water";
 	}
 
 	static std::string getRandomFile(const std::string& folder)
@@ -72,6 +72,13 @@ public:
 		}
 
 		return files[rand() % files.size()];
+	}
+
+	static int getLODFromFilename(const std::string& filename)
+	{
+		std::string stem = getFileNameOnly(filename);
+
+		return std::stoi(stem.substr(1, 1));
 	}
 };
 

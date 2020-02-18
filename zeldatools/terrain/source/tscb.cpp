@@ -1,10 +1,10 @@
 #include "TSCB.h"
 #include <iostream>
-#include "endian.h"
 #include <stb\stb_image_write.h>
 #include <algorithm>
 #include "Array2D.h"
 #include "HGHT.h"
+#include "filenameUtils.h"
 
 #include <experimental\filesystem>
 namespace fs = std::experimental::filesystem;
@@ -18,75 +18,55 @@ TSCB& TSCB::getInstance()
 TSCB::TSCB()
 {
 	readFile();
-	fixTileOffsets();
+	fixAreaOffsets();
 }
 
 void TSCB::readFile()
 {
 	// open MainField.tscb
-	m_inputFile.open(fs::current_path().string() + "\\MainField.tscb", std::ios::binary | std::ios::_Nocreate);
-
-	// ensure it opened correctly
-	if (!m_inputFile.is_open())
-	{
-		std::cout << "Failed to open MainField.tscb" << std::endl;
-		return;
-	}
+	m_reader.open(fs::current_path().string() + "\\MainField.tscb");
 
 	// read the different parts of the file
 	readHeader();
 	readMaterialTableOffsets();
 	readMaterialTable();
-	readTileTableOffsets();
-	readTileTable();
-	readTileNames();
-
-	// close input file
-	m_inputFile.close();
+	readAreaTableOffsets();
+	readAreaTable();
+	readAreaNames();
 }
 
 void TSCB::readHeader()
 {
 	// read raw values
-    m_inputFile.read(reinterpret_cast<char*>(&m_header.magic), 4);
-    m_inputFile.read(reinterpret_cast<char*>(&m_header.unk), 4);
-    m_inputFile.read(reinterpret_cast<char*>(&m_header.unk2), 4);
-    m_inputFile.read(reinterpret_cast<char*>(&m_header.stringTableOffset), 4);
-    m_inputFile.read(reinterpret_cast<char*>(&m_header.unkFloat), 4);
-    m_inputFile.read(reinterpret_cast<char*>(&m_header.unkFloat2), 4);
-    m_inputFile.read(reinterpret_cast<char*>(&m_header.materialLookupTableCount), 4);
-    m_inputFile.read(reinterpret_cast<char*>(&m_header.tileTableCount), 4);
-    m_inputFile.read(reinterpret_cast<char*>(&m_header.unk3), 4);
-    m_inputFile.read(reinterpret_cast<char*>(&m_header.unk4), 4);
-    m_inputFile.read(reinterpret_cast<char*>(&m_header.unkFloat3), 4);
-    m_inputFile.read(reinterpret_cast<char*>(&m_header.unk5), 4);
-    m_inputFile.read(reinterpret_cast<char*>(&m_header.materialLookupTableSize), 4);
+	m_header.magic[0] = m_reader.read<char>();
+	m_header.magic[1] = m_reader.read<char>();
+	m_header.magic[2] = m_reader.read<char>();
+	m_header.magic[3] = m_reader.read<char>();
+	m_header.unk = m_reader.read<uint32_t>();
+	m_header.unk2 = m_reader.read<uint32_t>(true);
+	m_header.stringTableOffset = m_reader.read<uint32_t>(true);
+	m_header.worldScale = m_reader.read<float>(true);
+	m_header.terrainMeshMaxHeight = m_reader.read<float>(true);
+	m_header.materialInfoArrayLength = m_reader.read<uint32_t>(true);
+	m_header.areaArrayLength = m_reader.read<uint32_t>(true);
+	m_header.padding = m_reader.read<uint32_t>();
+	m_header.padding2 = m_reader.read<uint32_t>();
+	m_header.tileSize = m_reader.read<float>(true);
+	m_header.unk3 = m_reader.read<uint32_t>(true);
+	m_header.materialLookupTableSize = m_reader.read<uint32_t>(true);
 
-	// swap endian on certain values
-    m_header.unk2 = swap_endian<uint32_t>(m_header.unk2);
-    m_header.stringTableOffset = swap_endian<uint32_t>(m_header.stringTableOffset);
-    m_header.unkFloat = swap_endian<float>(m_header.unkFloat);
-    m_header.unkFloat2 = swap_endian<float>(m_header.unkFloat2);
-    m_header.materialLookupTableCount = swap_endian<uint32_t>(m_header.materialLookupTableCount);
-    m_header.tileTableCount = swap_endian<uint32_t>(m_header.tileTableCount);
-    m_header.unkFloat3 = swap_endian<float>(m_header.unkFloat3);
-    m_header.unk5 = swap_endian<uint32_t>(m_header.unk5);
-    m_header.materialLookupTableSize = swap_endian<uint32_t>(m_header.materialLookupTableSize);
-
-	std::cout << "Finished reading header at 0x" << std::hex << m_inputFile.tellg() << std::endl;
+	std::cout << "Finished reading header at 0x" << std::hex << m_reader.getFileOffset() << std::endl;
 }
 
 void TSCB::readMaterialTableOffsets()
 {
-	for (unsigned int i = 0; i < m_header.materialLookupTableCount; i++)
+	for (unsigned int i = 0; i < m_header.materialInfoArrayLength; i++)
 	{
-		uint32_t currentOffset;
-		m_inputFile.read(reinterpret_cast<char*>(&currentOffset), sizeof(uint32_t));
-		currentOffset = swap_endian<uint32_t>(currentOffset);
-		m_materialTableOffsets.push_back(currentOffset + uint32_t(m_inputFile.tellg()) - 4);
+		uint32_t currentOffset = m_reader.read<uint32_t>(true) + (uint32_t)m_reader.getFileOffset() - 4;
+		m_materialTableOffsets.push_back(currentOffset);
 	}
 
-	std::cout << "Finished reading material table offsets at 0x" << std::hex << m_inputFile.tellg() << std::endl;
+	std::cout << "Finished reading material table offsets at 0x" << std::hex << m_reader.getFileOffset() << std::endl;
 }
 
 void TSCB::readMaterialTable()
@@ -94,194 +74,206 @@ void TSCB::readMaterialTable()
     for (size_t i = 0; i < m_materialTableOffsets.size(); i++)
     {
 		// jump to the correct offset
-		m_inputFile.seekg(std::streampos(m_materialTableOffsets[i]), std::ios::beg);
+		m_reader.seek(std::streampos(m_materialTableOffsets[i]));
 
         // read a material
 		TSCBMaterialInfo material;
 
-		m_inputFile.read(reinterpret_cast<char*>(&material.index), sizeof(uint32_t));
-		m_inputFile.read(reinterpret_cast<char*>(&material.red), sizeof(float));
-		m_inputFile.read(reinterpret_cast<char*>(&material.green), sizeof(float));
-		m_inputFile.read(reinterpret_cast<char*>(&material.blue), sizeof(float));
-		m_inputFile.read(reinterpret_cast<char*>(&material.alpha), sizeof(float));
-
-		// swap endian for all values
-		material.index = swap_endian<uint32_t>(material.index);
-		material.red = swap_endian<float>(material.red);
-		material.green = swap_endian<float>(material.green);
-		material.blue = swap_endian<float>(material.blue);
-		material.alpha = swap_endian<float>(material.alpha);
+		material.index = m_reader.read<uint32_t>(true);
+		material.textureUAxis = m_reader.read<float>(true);
+		material.textureVAxis = m_reader.read<float>(true);
+		material.unk = m_reader.read<float>(true);
+		material.unk2 = m_reader.read<float>(true);
 
 		// add to vector
 		m_materialTable.push_back(material);
     }
 
-	std::cout << "Finished reading material table at 0x" << std::hex << m_inputFile.tellg() << std::endl;
+	std::cout << "Finished reading material table at 0x" << std::hex << m_reader.getFileOffset() << std::endl;
 }
 
-void TSCB::readTileTableOffsets()
+void TSCB::readAreaTableOffsets()
 {
-	for (unsigned int i = 0; i < m_header.tileTableCount; i++)
+	for (unsigned int i = 0; i < m_header.areaArrayLength; i++)
 	{
-		uint32_t currentOffset;
-		m_inputFile.read(reinterpret_cast<char*>(&currentOffset), sizeof(uint32_t));
-		currentOffset = swap_endian<uint32_t>(currentOffset);
-		m_tileTableOffsets.push_back(currentOffset + uint32_t(m_inputFile.tellg()) - 4);
+		uint32_t currentOffset = m_reader.read<uint32_t>(true) + (uint32_t)m_reader.getFileOffset() - 4;
+		m_areaTableOffsets.push_back(currentOffset);
 	}
 
-	std::cout << "Finished reading tile table offsets at 0x" << std::hex << m_inputFile.tellg() << std::endl;
+	std::cout << "Finished reading area table offsets at 0x" << std::hex << m_reader.getFileOffset() << std::endl;
 }
 
-void TSCB::readTileTable()
+void TSCB::readAreaTable()
 {
-    for (size_t i = 0; i < m_tileTableOffsets.size(); i++)
+    for (size_t i = 0; i < m_areaTableOffsets.size(); i++)
     {
 		// jump to the correct offset
-		m_inputFile.seekg(std::streampos(m_tileTableOffsets[i]), std::ios::beg);
+		m_reader.seek(std::streampos(m_areaTableOffsets[i]));
 
-		// read a tile
-		TSCBTileInfo tileInfo;
+		// read an area
+		TSCBArea area;
 
-        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.centerX), 4);
-        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.centerY), 4);
-        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.edgeLength), 4);
-        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.unk0), 4);
-        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.unk1), 4);
-        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.unk2), 4);
-        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.unk3), 4);
-        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.unk4), 4);
-        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.stringOffset), 4);
-        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.unk5), 4);
-        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.unk6), 4);
-        m_inputFile.read(reinterpret_cast<char*>(&tileInfo.unk7), 4);
+        area.xPosition = m_reader.read<float>(true);
+        area.zPosition = m_reader.read<float>(true);
+        area.areaSize = m_reader.read<float>(true);
+        area.grassDensity = m_reader.read<float>(true);
+		area.unk = m_reader.read<float>(true);
+		area.unk2 = m_reader.read<float>(true);
+		area.unk3 = m_reader.read<float>(true);
+		area.unk4 = m_reader.read<uint32_t>(true);
+		area.nameOffset = m_reader.read<uint32_t>(true);
+		area.unk5 = m_reader.read<uint32_t>(true);
+		area.unk6 = m_reader.read<uint32_t>(true);
+		area.unk7 = m_reader.read<uint32_t>(true);
 
 		// swap endian for all values
-        tileInfo.centerX = swap_endian<float>(tileInfo.centerX);
-        tileInfo.centerY = swap_endian<float>(tileInfo.centerY);
-        tileInfo.edgeLength = swap_endian<float>(tileInfo.edgeLength);
-        tileInfo.unk0 = swap_endian<float>(tileInfo.unk0);
-        tileInfo.unk1 = swap_endian<float>(tileInfo.unk1);
-        tileInfo.unk2 = swap_endian<float>(tileInfo.unk2);
-        tileInfo.unk3 = swap_endian<float>(tileInfo.unk3);
-        tileInfo.unk4 = swap_endian<uint32_t>(tileInfo.unk4);
-        tileInfo.stringOffset = swap_endian<uint32_t>(tileInfo.stringOffset);
-		tileInfo.stringOffset += uint32_t(m_inputFile.tellg());
-		tileInfo.stringOffset -= 16;
-        tileInfo.unk5 = swap_endian<uint32_t>(tileInfo.unk5);
-        tileInfo.unk6 = swap_endian<uint32_t>(tileInfo.unk6);
-        tileInfo.unk7 = swap_endian<uint32_t>(tileInfo.unk7);
+		area.nameOffset += (uint32_t)m_reader.getFileOffset() - 16;
 
 		// add to vector
-		m_tileTable.push_back(tileInfo);
+		m_areaTable.push_back(area);
     }
 
-	std::cout << "Finished reading tile table at 0x" << std::hex << m_inputFile.tellg() << std::endl;
+	std::cout << "Finished reading area table at 0x" << std::hex << m_reader.getFileOffset() << std::endl;
 }
 
-void TSCB::readTileNames()
+void TSCB::readAreaNames()
 {
 	// assume we are at the start of the string table
-	for (size_t i = 0; i < m_tileTable.size(); i++)
+	for (size_t i = 0; i < m_areaTable.size(); i++)
 	{
-		m_inputFile.seekg(m_tileTable[i].stringOffset, std::ios::beg);
+		m_reader.seek(m_areaTable[i].nameOffset);
 
-		std::string tileName;
+		std::string areaName = m_reader.readNullTerminatedString();
 
-		char c;
-
-		while (true)
-		{
-			m_inputFile.read(&c, sizeof(char));
-
-			// null terminator reached
-			if (c == '\0')
-			{
-				break;
-			}
-
-			tileName += c;
-		}
-
-		m_tileNames.push_back(tileName);
+		m_areaNames.push_back(areaName);
 	}
 
-	std::cout << "Finished reading tile names at 0x" << std::hex << m_inputFile.tellg() << std::endl << std::endl;
+	std::cout << "Finished reading area names at 0x" << std::hex << m_reader.getFileOffset() << std::endl << std::endl;
 }
 
 void TSCB::writeFile()
 {
-	m_outputFile.open("output.txt", std::ios::trunc);
+	std::ofstream outputFile;
 
-	if (!m_outputFile.is_open())
+	outputFile.open("output_DLC.txt", std::ios::trunc);
+
+	if (!outputFile.is_open())
 	{
 		std::cout << "Failed to open output.txt\n";
 	}
 
- //   // write header info
-	//m_outputFile << "Magic ID: " << m_header.magic << std::endl;
- //   m_outputFile << "unk: " << m_header.unk << std::endl;
- //   m_outputFile << "unk 2: " << m_header.unk2 << std::endl;
- //   m_outputFile << "String table offset: 0x" << std::hex << m_header.stringTableOffset << std::dec << std::endl;
- //   m_outputFile << "unk Float: " << m_header.unkFloat << std::endl;
- //   m_outputFile << "unk Float 2: " << m_header.unkFloat2 << std::endl;
- //   m_outputFile << "Material Lookup table count: " << m_header.materialLookupTableCount << std::endl;
- //   m_outputFile << "Tile table count: " << m_header.tileTableCount << std::endl;
- //   m_outputFile << "unk 3: " << m_header.unk3 << std::endl;
- //   m_outputFile << "unk 4: " << m_header.unk4 << std::endl;
- //   m_outputFile << "unk Float 3: " << m_header.unkFloat3 << std::endl;
- //   m_outputFile << "unk 5: " << m_header.unk5 << std::endl;
- //   m_outputFile << "Size of Material Lookup Table: 0x" << std::hex << m_header.materialLookupTableSize << std::dec << std::endl << std::endl;
+    // write header info
+	outputFile << "Magic ID: " << m_header.magic << std::endl;
+    outputFile << "unk: " << m_header.unk << std::endl;
+    outputFile << "unk 2: " << m_header.unk2 << std::endl;
+    outputFile << "String table offset: 0x" << std::hex << m_header.stringTableOffset << std::dec << std::endl;
+    outputFile << "World scale: " << m_header.worldScale << std::endl;
+    outputFile << "Terrain mesh max height: " << m_header.terrainMeshMaxHeight << std::endl;
+    outputFile << "Material info array length: " << m_header.materialInfoArrayLength << std::endl;
+    outputFile << "Area array length: " << m_header.areaArrayLength << std::endl;
+    outputFile << "Padding: " << m_header.padding << std::endl;
+    outputFile << "Padding 2: " << m_header.padding2 << std::endl;
+    outputFile << "Tile size: " << m_header.tileSize << std::endl;
+    outputFile << "unk 3: " << m_header.unk3 << std::endl;
+    outputFile << "Size of Material Lookup Table: 0x" << std::hex << m_header.materialLookupTableSize << std::dec << std::endl << std::endl;
 
- //   // write material table info
- //   for (int i = 0; i < 88; i++)
- //   {
- //       m_outputFile << "Material offset: 0x" << std::hex << m_materialTableOffsets[i] << std::dec << std::endl;
- //       m_outputFile << "Material index: " << m_materialTable[i].index << std::endl;
- //       m_outputFile << "Material red: " << m_materialTable[i].red << std::endl;
- //       m_outputFile << "Material green: " << m_materialTable[i].green << std::endl;
- //       m_outputFile << "Material blue: " << m_materialTable[i].blue << std::endl;
- //       m_outputFile << "Material alpha: " << m_materialTable[i].alpha << std::endl << std::endl;
- //   }
+    // write material table info
+    for (int i = 0; i < m_header.materialInfoArrayLength; i++)
+    {
+        outputFile << "Material offset: 0x" << std::hex << m_materialTableOffsets[i] << std::dec << std::endl;
+        outputFile << "Material index: " << m_materialTable[i].index << std::endl;
+        outputFile << "Material Texture U Axis: " << m_materialTable[i].textureUAxis << std::endl;
+        outputFile << "Material Texture V axis: " << m_materialTable[i].textureVAxis << std::endl;
+        outputFile << "Material unknown: " << m_materialTable[i].unk << std::endl;
+        outputFile << "Material unknown 2: " << m_materialTable[i].unk2 << std::endl << std::endl;
+    }
 
-    //// write tile table info
-    //for (int i = 0; i < 9033; i++)
-    //{
-    //    //m_outputFile << "Offset: 0x" << std::hex << m_tileTableOffsets[i] << std::dec << std::endl;
-    //    m_outputFile << "Tile " << m_tileNames[i] << std::endl;
-    //    m_outputFile << "Center X: " << m_tileTable[i].centerX << std::endl;
-    //    m_outputFile << "Center Y: " << m_tileTable[i].centerY << std::endl;
-    //    m_outputFile << "Edge Length: " << m_tileTable[i].edgeLength << std::endl << std::endl;
-    //    //m_outputFile << "unk0: " << m_tileTable[i].unk0 << std::endl;
-    //    //m_outputFile << "unk1: " << m_tileTable[i].unk1 << std::endl;
-    //    //m_outputFile << "unk2: " << m_tileTable[i].unk2 << std::endl;
-    //    //m_outputFile << "unk3: " << m_tileTable[i].unk3 << std::endl;
-    //    //m_outputFile << "unk4: " << m_tileTable[i].unk4 << std::endl;
-    //    //m_outputFile << "String Offset: 0x" << std::hex << m_tileTable[i].stringOffset << std::dec << std::endl;
-    //    //m_outputFile << "unk5: " << m_tileTable[i].unk5 << std::endl;
-    //    //m_outputFile << "unk6: " << m_tileTable[i].unk6 << std::endl;
-    //    //m_outputFile << "unk7: " << m_tileTable[i].unk7 << std::endl << std::endl;
-    //}
+    // write area table info
+    for (int i = 0; i < m_header.areaArrayLength; i++)
+    {
+        //outputFile << "Offset: 0x" << std::hex << m_areaTableOffsets[i] << std::dec << std::endl;
+        outputFile << "Area Name: " << m_areaNames[i] << std::endl;
+        outputFile << "X Position: " << m_areaTable[i].xPosition << std::endl;
+        outputFile << "Z Position: " << m_areaTable[i].zPosition << std::endl;
+        outputFile << "Area Size: " << m_areaTable[i].areaSize<< std::endl;
+        outputFile << "Grass Density: " << m_areaTable[i].grassDensity << std::endl << std::endl;
+        /*outputFile << "unk: " << m_areaTable[i].unk << std::endl;
+        m_outputFile << "unk2: " << m_areaTable[i].unk2 << std::endl;
+        m_outputFile << "unk3: " << m_areaTable[i].unk3 << std::endl;
+        m_outputFile << "unk4: " << m_areaTable[i].unk4 << std::endl;
+        m_outputFile << "Name Offset: 0x" << std::hex << m_areaTable[i].nameOffset << std::dec << std::endl;
+        m_outputFile << "unk5: " << m_areaTable[i].unk5 << std::endl;
+        m_outputFile << "unk6: " << m_areaTable[i].unk6 << std::endl;
+        m_outputFile << "unk7: " << m_areaTable[i].unk7 << std::endl << std::endl;*/
+    }
 
-	std::vector<std::string> filenames = getFileNamesByLOD(3);
+    outputFile.close();
+}
 
-	for (std::string filename : filenames)
+bool vertSort(const glm::vec3& a, const glm::vec3& b)
+{
+	if (a.y < b.y)
+		return true;
+
+	return a.x < b.x;
+}
+
+void TSCB::writeCombinedOBJ(int LOD, const std::string& filename)
+{
+	std::vector<std::string> lodFilenames = getFileNamesByLOD(LOD);
+
+	std::vector<glm::vec3> verts;
+
+	for (int i = 0; i < lodFilenames.size(); i++)
 	{
-		m_outputFile << filename << std::endl;
+		glm::vec2 offset = TSCB::getInstance().getAreaLocation(lodFilenames[i]) * 256.0f;
+		HGHT currentHGHt(filenameUtils::getHGHTFolder() + "/" + lodFilenames[i] + ".hght");
+		TSCBArea area = getAreabyName(lodFilenames[i]);
+		float scale = (area.areaSize / m_header.tileSize * m_header.worldScale) * 20.0f;
+
+		for (int y = 0; y < 256; y++)
+		{
+			for (int x = 0; x < 256; x++)
+			{
+				verts.push_back(glm::vec3(offset.x + x, currentHGHt.getHeight(y, x) / scale, offset.y + y));
+			}
+		}
 	}
 
-    m_outputFile.close();
+	// all verts are in the vector so sort it
+	std::sort(verts.begin(), verts.end(), vertSort);
+
+	// open file
+	std::ofstream file;
+	file.open(filename, std::ios::trunc);
+
+	if (!file.is_open())
+	{
+		std::cout << "Failed to load " << filename << std::endl;
+		return;
+	}
+
+	// write object header
+	file << "o model" << std::endl;
+
+	for (int i = 0; i < verts.size(); i++)
+	{
+		file << "v " << verts[i].x << " " << verts[i].y << " " << verts[i].z << std::endl;
+	}
+
+	file.close();
 }
 
 // returns every filename
 std::vector<std::string> TSCB::getAllFileNames()
 {
-	return m_tileNames;
+	return m_areaNames;
 }
 
 bool sortByPosition(const std::string& a, const std::string& b)
 {
-	glm::vec2 posa = TSCB::getInstance().getTileLocation(a);
-	glm::vec2 posb = TSCB::getInstance().getTileLocation(b);
+	glm::vec2 posa = TSCB::getInstance().getAreaLocation(a);
+	glm::vec2 posb = TSCB::getInstance().getAreaLocation(b);
 
 	if (posa.y != posb.y)
 	{
@@ -297,7 +289,7 @@ std::vector<std::string> TSCB::getFileNamesByLOD(int LOD)
 	char c = std::to_string(LOD)[0];
 	std::vector<std::string> filenames;
 
-	for (auto iter = m_tileNames.begin(); iter != m_tileNames.end(); iter++)
+	for (auto iter = m_areaNames.begin(); iter != m_areaNames.end(); iter++)
 	{
 		if ((*iter)[1] == c)
 		{
@@ -310,59 +302,42 @@ std::vector<std::string> TSCB::getFileNamesByLOD(int LOD)
 	return filenames;
 }
 
-TSCBTileInfo TSCB::getTileByName(const std::string& name)
+TSCBArea TSCB::getAreabyName(const std::string& name)
 {
-	for (size_t i = 0; i < m_tileNames.size(); i++)
+	for (size_t i = 0; i < m_areaNames.size(); i++)
 	{
-		if (m_tileNames[i] == name)
+		if (m_areaNames[i] == name)
 		{
-			return m_tileTable[i];
+			return m_areaTable[i];
 		}
 	}
 
-	return m_tileTable[0];
+	return m_areaTable[0];
 }
 
-// get tile coordinates for tile with filename
-glm::vec2 TSCB::getTileLocation(const std::string& filename)
+// get the position for area with filename
+glm::vec2 TSCB::getAreaLocation(const std::string& filename)
 {
-	TSCBTileInfo tile = getTileByName(filename);
+	TSCBArea area = getAreabyName(filename);
 
-	return glm::vec2(tile.centerX, tile.centerY);
+	return glm::vec2(area.xPosition, area.zPosition);
 }
 
-// write image containing the colors from the material table
-void TSCB::writeColorImage(std::string& filename)
-{
-	// create and 88 x 1 image
-	char pixelData[88][4];
-
-	for (int x = 0; x < 88; x++)
-	{
-		pixelData[x][0] = (char)(m_materialTable[x].red * 255.0f);
-		pixelData[x][1] = (char)(m_materialTable[x].green * 255.0f);
-		pixelData[x][2] = (char)(m_materialTable[x].blue * 255.0f);
-		pixelData[x][3] = (char)(m_materialTable[x].alpha * 255.0f);
-	}
-
-	stbi_write_png((filename + ".png").c_str(), 88, 1, 4, pixelData, 4);
-}
-
-// adjust tile centerX and centerY values to line up better with a grid
-void TSCB::fixTileOffsets()
+// adjust area positionX and positionZ values to start at the top left corner
+void TSCB::fixAreaOffsets()
 {
 	int currentLOD = 0;
 
-	for (size_t i = 0; i < m_tileTable.size(); i++)
+	for (size_t i = 0; i < m_areaTable.size(); i++)
 	{
-		if (m_tileNames[i].substr(1, 1) != std::to_string(currentLOD))
+		if (m_areaNames[i].substr(1, 1) != std::to_string(currentLOD))
 		{
 			currentLOD++;
 		}
 
-		m_tileTable[i].centerX -= lowest[currentLOD].x;
-		m_tileTable[i].centerX /= m_tileTable[i].edgeLength;
-		m_tileTable[i].centerY -= lowest[currentLOD].y;
-		m_tileTable[i].centerY /= m_tileTable[i].edgeLength;
+		m_areaTable[i].xPosition -= lowest[currentLOD].x;
+		m_areaTable[i].xPosition /= m_areaTable[i].areaSize;
+		m_areaTable[i].zPosition -= lowest[currentLOD].y;
+		m_areaTable[i].zPosition /= m_areaTable[i].areaSize;
 	}
 }

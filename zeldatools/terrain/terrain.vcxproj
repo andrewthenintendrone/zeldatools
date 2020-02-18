@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\BinaryReader.cpp" />
+    <ClCompile Include="source\BinaryWriter.cpp" />
     <ClCompile Include="source\Camera.cpp" />
     <ClCompile Include="source\Color.cpp" />
     <ClCompile Include="source\FlyCamera.cpp" />
@@ -42,6 +44,8 @@
   <ItemGroup>
     <ClInclude Include="source\Array2D.h" />
     <ClInclude Include="source\Array3D.h" />
+    <ClInclude Include="source\BinaryReader.h" />
+    <ClInclude Include="source\BinaryWriter.h" />
     <ClInclude Include="source\Camera.h" />
     <ClInclude Include="source\Color.h" />
     <ClInclude Include="source\endian.h" />

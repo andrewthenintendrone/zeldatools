@@ -2,9 +2,16 @@
 #include <fstream>
 #include <iostream>
 
+#pragma region constructors
+
 Color::Color()
 {
-	value = 0xFFFFFFFF;
+	value = 0xFFFFFF;
+}
+
+Color::Color(const Color& other)
+{
+	this->value = other.value;
 }
 
 Color::Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
@@ -26,6 +33,24 @@ Color::Color(uint32_t hexCode)
 	a = chunks[0];
 }
 
+Color::Color(glm::vec3 vec3)
+{
+	r = (uint8_t)(vec3.r * 255.0f);
+	g = (uint8_t)(vec3.g * 255.0f);
+	b = (uint8_t)(vec3.b * 255.0f);
+	a = (uint8_t)255;
+}
+
+Color::Color(glm::vec4 vec4)
+{
+	r = (uint8_t)(vec4.r * 255.0f);
+	g = (uint8_t)(vec4.g * 255.0f);
+	b = (uint8_t)(vec4.b * 255.0f);
+	a = (uint8_t)(vec4.a * 255.0f);
+}
+
+#pragma endregion
+
 glm::vec3 Color::asVec3() const
 {
 	return glm::vec3((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f);
@@ -36,10 +61,7 @@ glm::vec4 Color::asVec4() const
 	return glm::vec4((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, (float)a / 255.0f);
 }
 
-Color Color::FromArgb(uint8_t alpha, uint8_t red, uint8_t green, uint8_t blue)
-{
-	return Color(red, green, blue, alpha);
-}
+#pragma region operator overloads
 
 void Color::operator = (const Color& other)
 {
@@ -48,7 +70,11 @@ void Color::operator = (const Color& other)
 
 Color Color::operator + (const Color& other) const
 {
-	return Color(value + other.value);
+	uint8_t r2 = std::min(((uint16_t)r + (uint16_t)other.r), 255);
+	uint8_t g2 = std::min(((uint16_t)g + (uint16_t)other.g), 255);
+	uint8_t b2 = std::min(((uint16_t)b + (uint16_t)other.b), 255);
+
+	return Color(r2, g2, b2);
 }
 
 void Color::operator += (const Color& other)
@@ -58,7 +84,11 @@ void Color::operator += (const Color& other)
 
 Color Color::operator - (const Color& other) const
 {
-	return Color(value - other.value);
+	uint8_t r2 = std::max(((int16_t)r - (int16_t)other.r), 0);
+	uint8_t g2 = std::max(((int16_t)g - (int16_t)other.g), 0);
+	uint8_t b2 = std::max(((int16_t)b - (int16_t)other.b), 0);
+
+	return Color(r2, g2, b2);
 }
 
 void Color::operator -= (const Color& other)
@@ -66,15 +96,200 @@ void Color::operator -= (const Color& other)
 	value -= other.value;
 }
 
-const Color Color::lerp(const Color& color1, const Color& color2, const float factor)
+Color Color::operator * (const Color& other) const
 {
-	uint8_t newr = uint8_t(color1.r * (1.0f - factor) + color2.r * factor);
-	uint8_t newg = uint8_t(color1.g * (1.0f - factor) + color2.g * factor);
-	uint8_t newb = uint8_t(color1.b * (1.0f - factor) + color2.b * factor);
-	uint8_t newa = uint8_t(color1.a * (1.0f - factor) + color2.a * factor);
+	glm::vec4 multiplied = this->asVec4() * other.asVec4();
 
-	return Color(newr, newg, newb, newa);
+	return Color(multiplied);
 }
+
+void Color::operator *= (const Color& other)
+{
+	*this = *this * other;
+}
+
+std::ostream& operator << (std::ostream& os, const Color& c)
+{
+	os << "Color(" << (int)c.r << ", " << (int)c.g << ", " << (int)c.b << ")";
+	return os;
+}
+
+#pragma endregion
+
+float Color::getHue() const
+{
+	float R = (float)r / 255.0f;
+	float G = (float)g / 255.0f;
+	float B = (float)b / 255.0f;
+
+	float M = std::max<float>(R, G);
+	M = std::max<float>(M, B);
+	float m = std::min<float>(R, G);
+	m = std::min<float>(m, B);
+
+	float C = M - m;
+
+	float H;
+
+	if (C == 0)
+	{
+		H = 0;
+	}
+	else if (M == R)
+	{
+		H = 60.0f * ((G - B) / C);
+	}
+	else if (M == G)
+	{
+		H = 60.0f * (2.0f + (B - R) / C);
+	}
+	else if (M == B)
+	{
+		H = 60.0f * (4.0f + (R - G) / C);
+	}
+
+	if (H < 0.0f)
+	{
+		H += 360.0f;
+	}
+
+	return H;
+}
+
+float Color::getSaturation() const
+{
+	float R = (float)r / 255.0f;
+	float G = (float)g / 255.0f;
+	float B = (float)b / 255.0f;
+
+	float M = std::max<float>(R, G);
+	M = std::max<float>(M, B);
+	float m = std::min<float>(R, G);
+	m = std::min<float>(m, B);
+
+	float C = M - m;
+
+	if (C == 0.0f)
+	{
+		return 0.0f;
+	}
+
+	return C / M;
+}
+
+float Color::getValue() const
+{
+	float R = (float)r / 255.0f;
+	float G = (float)g / 255.0f;
+	float B = (float)b / 255.0f;
+
+	float V = std::max<float>(R, G);
+	V = std::max<float>(V, B);
+
+	return V;
+}
+
+#pragma region comparisons
+
+bool Color::compareHue(const Color& a, const Color& b)
+{
+	return a.getHue() < b.getHue();
+}
+
+bool Color::compareSaturation(const Color& a, const Color& b)
+{
+	return a.getSaturation() < b.getSaturation();
+}
+
+bool Color::compareValue(const Color& a, const Color& b)
+{
+	return a.getValue() < b.getValue();
+}
+
+#pragma endregion
+
+Color Color::lerp(const Color& a, const Color& b, float t)
+{
+	glm::vec4 va = a.asVec4();
+	glm::vec4 vb = b.asVec4();
+
+	glm::vec4 result;
+
+	result.x = (1.0f - t) * va.x + t * vb.x;
+	result.y = (1.0f - t) * va.y + t * vb.y;
+	result.z = (1.0f - t) * va.z + t * vb.z;
+	result.w = (1.0f - t) * va.w + t * vb.w;
+
+	return Color(result);
+}
+
+#pragma region conversions
+
+Color Color::convertFromBGR555(uint16_t bgr)
+{
+	Color c;
+
+	c.r = (bgr & (uint16_t)0x001f) << 3;
+	c.g = ((bgr & (uint16_t)0x03e0) >> 5) << 3;
+	c.b = ((bgr & (uint16_t)0x7c00) >> 10) << 3;
+	c.a = 255;
+
+	return c;
+}
+
+uint16_t Color::convertToBGR555(Color color)
+{
+	uint16_t bgr = (color.r / (uint16_t)0x08);
+	bgr |= (color.g / (uint16_t)0x08) << 5;
+	bgr |= (color.b / (uint16_t)0x08) << 10;
+	bgr |= (color.a / 255) << 15;
+
+	return bgr;
+}
+
+Color Color::convertFromRGB565(uint16_t rgb)
+{
+	Color c;
+
+	c.r = ((rgb & (uint16_t)0xf800) >> 11) << 3;
+	c.g = ((rgb & (uint16_t)0x07e0) >> 6) << 2;
+	c.b = (rgb & (uint16_t)0x001f) << 3;
+	c.a = 255;
+
+	return c;
+}
+
+uint16_t Color::convertToRGB565(Color color)
+{
+	uint16_t rgb = (color.b >> 3);
+	rgb |= (color.g >> 2) << 6;
+	rgb |= (color.r >> 3) << 11;
+
+	return rgb;
+}
+
+Color Color::convertFromBGR222(uint8_t bgr)
+{
+	Color c;
+
+	c.r = (bgr & (uint16_t)0x03) * (uint16_t)0x40;
+	c.g = ((bgr & (uint16_t)0x0C) >> 2) * (uint16_t)0x40;
+	c.b = ((bgr & (uint16_t)0x30) >> 4) * (uint16_t)0x40;
+	c.a = 255;
+
+	return c;
+}
+
+uint8_t Color::convertToBGR222(Color color)
+{
+	int8_t byte = (color.r / (uint16_t)64);
+	byte |= (color.g / (uint16_t)64) << 2;
+	byte |= (color.b / (uint16_t)64) << 4;
+
+	return byte;
+}
+
+#pragma endregion
 
 #pragma region ColorConstants
 

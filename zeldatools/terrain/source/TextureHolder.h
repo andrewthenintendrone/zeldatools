@@ -18,7 +18,7 @@ public:
 	Color getTerrainPixelApproximate(const MATEinfo& mateInfo, int x, int y);
 
 	Color getWaterPixel(const WATERInfo& waterInfo, int x, int y);
-	Color getWaterPixelApproximate(const WATERInfo& waterInfo, int x, int y);
+	Color getWaterPixelApproximate(const WATERInfo& waterInfo);
 
 	void bindTextures(Shader shader);
 
@@ -29,10 +29,9 @@ private:
 
 	void loadTextures();
 
-	bool shouldLoadTextures = true;
+	bool shouldLoadTextures = false;
 
 	std::ifstream m_inputFile;
-	int fixMaterialIndex(int materialIndex);
 
 	Texture3D m_terrainTextures;
 	Texture3D m_waterTextures;
@@ -122,5 +121,17 @@ private:
 		Color(0x61542eff),
 		Color(0x9c7a77ff),
 		Color(0x211e1bff)
+	};
+
+	std::vector<Color> m_approximateWaterColors
+	{
+		Color::Aqua(),
+		Color::Aquamarine(),
+		Color::Purple(),
+		Color::Red(),
+		Color::Cyan(),
+		Color::Brown(),
+		Color::White(),
+		Color::LightSeaGreen()
 	};
 };

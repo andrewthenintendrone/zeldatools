@@ -5,7 +5,9 @@
 
 class SSTERA
 {
+
 public:
+
     SSTERA(const std::string& filename);
 	SSTERA(HGHT hghts[4]);
 	void writeFiles();

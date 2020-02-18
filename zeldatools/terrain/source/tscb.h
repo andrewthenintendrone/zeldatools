@@ -1,8 +1,8 @@
 #pragma once
-#include <fstream>
 #include <vector>
 #include <string>
 #include <glm\glm.hpp>
+#include "BinaryReader.h"
 #include "Color.h"
 
 // TSCB header struct
@@ -12,14 +12,14 @@ struct TSCBHeader
 	uint32_t unk = 0;
 	uint32_t unk2 = 0;
 	uint32_t stringTableOffset = 0;
-	float unkFloat = 0;
-	float unkFloat2 = 0;
-	uint32_t materialLookupTableCount = 0;
-	uint32_t tileTableCount = 0;
+	float worldScale = 0;
+	float terrainMeshMaxHeight = 0;
+	uint32_t materialInfoArrayLength = 0;
+	uint32_t areaArrayLength = 0;
+	uint32_t padding = 0;
+	uint32_t padding2 = 0;
+	float tileSize = 0;
 	uint32_t unk3 = 0;
-	uint32_t unk4 = 0;
-	float unkFloat3 = 0;
-	uint32_t unk5 = 0;
 	uint32_t materialLookupTableSize = 0;
 };
 
@@ -27,24 +27,24 @@ struct TSCBHeader
 struct TSCBMaterialInfo
 {
 	uint32_t index = 0;
-	float red = 0;
-	float green = 0;
-	float blue = 0;
-	float alpha = 0;
+	float textureUAxis = 0;
+	float textureVAxis = 0;
+	float unk = 0;
+	float unk2 = 0;
 };
 
-// TSCB tile info struct
-struct TSCBTileInfo
+// TSCB Area struct
+struct TSCBArea
 {
-	float centerX = 0;
-	float centerY = 0;
-	float edgeLength = 0;
-	float unk0 = 0;
-	float unk1 = 0;
+	float xPosition = 0;
+	float zPosition = 0;
+	float areaSize = 0;
+	float grassDensity = 0;
+	float unk = 0;
 	float unk2 = 0;
 	float unk3 = 0;
 	uint32_t unk4 = 0;
-	uint32_t stringOffset = 0;
+	uint32_t nameOffset = 0;
 	uint32_t unk5 = 0;
 	uint32_t unk6 = 0;
 	uint32_t unk7 = 0;
@@ -60,14 +60,16 @@ public:
 	void readFile();
 	void writeFile();
 
+	void writeCombinedOBJ(int LOD, const std::string& filename);
+
 	std::vector<std::string> getAllFileNames();
 	std::vector<std::string> getFileNamesByLOD(int LOD);
 
-	TSCBTileInfo getTileByName(const std::string& filename);
+	TSCBHeader getHeader() const { return m_header; }
 
-	glm::vec2 getTileLocation(const std::string& filename);
+	TSCBArea getAreabyName(const std::string& filename);
 
-	void writeColorImage(std::string& filename);
+	glm::vec2 getAreaLocation(const std::string& filename);
 
 	glm::vec2 getSpan(int LOD) { return span[LOD]; }
 
@@ -75,25 +77,24 @@ private:
 
 	TSCB();
 
-    std::ifstream m_inputFile;
-	std::ofstream m_outputFile;
+	BinaryReader m_reader;
 
 	// data
 	TSCBHeader m_header;
 	std::vector<uint32_t> m_materialTableOffsets;
 	std::vector<TSCBMaterialInfo> m_materialTable;
-	std::vector<uint32_t> m_tileTableOffsets;
-	std::vector<TSCBTileInfo> m_tileTable;
-	std::vector<std::string> m_tileNames;
+	std::vector<uint32_t> m_areaTableOffsets;
+	std::vector<TSCBArea> m_areaTable;
+	std::vector<std::string> m_areaNames;
 
 	void readHeader();
 	void readMaterialTableOffsets();
 	void readMaterialTable();
-	void readTileTableOffsets();
-	void readTileTable();
-	void readTileNames();
+	void readAreaTableOffsets();
+	void readAreaTable();
+	void readAreaNames();
 
-	void fixTileOffsets();
+	void fixAreaOffsets();
 
 	glm::vec2 lowest[9]
 	{

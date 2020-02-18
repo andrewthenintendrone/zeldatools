@@ -1,25 +1,31 @@
 #pragma once
 #include <string>
 #include "Array2D.h"
+#include "Texture2D.h"
 
 class HGHT
 {
 public:
 
+#pragma region constructors
+
 	HGHT() {};
-    HGHT(const std::string& filename);
+	HGHT(const std::string& filename);
+
+#pragma endregion
 
 	void load(const std::string& filename);
 	void save(const std::string& filename);
 
+	Texture2D getTexture() const;
+
 	// write files
 	void writeTexture(const std::string& filename);
 	void writeOBJ(const std::string& filename);
+	void writeOBJPointCloud(const std::string& filename);
 
 	// sample height
 	uint16_t getHeight(unsigned int x, unsigned int y) { return m_heights(x, y); }
-
-	const int getLOD();
 
 	void average();
 	const uint16_t getHighestPoint();
@@ -27,7 +33,9 @@ public:
 
 	static void dumpHGHTFile(const std::string& filename);
 
-	std::string getFilename()
+	int getLOD() const;
+
+	std::string getFilename() const
 	{
 		return m_filename;
 	}

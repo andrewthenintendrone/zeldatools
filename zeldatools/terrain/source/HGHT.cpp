@@ -5,14 +5,17 @@
 #include "MATE.h"
 #include "filenameUtils.h"
 #include "TSCB.h"
-#include "Texture2D.h"
+
+#pragma region constructors
 
 HGHT::HGHT(const std::string& filename)
 {
 	m_filename = filename;
 
-    readHeights();
+	readHeights();
 }
+
+#pragma endregion
 
 void HGHT::load(const std::string& filename)
 {
@@ -47,24 +50,28 @@ void HGHT::save(const std::string& filename)
 	file.close();
 }
 
-// save as png (loses accuracy)
-void HGHT::writeTexture(const std::string& filename)
+// create a texture from this heightmap
+Texture2D HGHT::getTexture() const
 {
-	// create pixel buffer
-	unsigned char pixelData[256][256][2];
+	Texture2D texture(256, 256, 3);
 
-	// set values in pixel buffer
-	for (int x = 0; x < 256; x++)
+	for (int y = 0; y < 256; y++)
 	{
-		for (int y = 0; y < 256; y++)
+		for (int x = 0; x < 256; x++)
 		{
-			pixelData[x][y][0] = (m_heights(x, y) >> 8);
-			pixelData[x][y][1] = (m_heights(x, y) & 0xFF);
+			uint16_t currentHeight = m_heights(y, x);
+			uint8_t currentColor = currentHeight >> 8;
+			texture.setPixel(x, y, Color(currentColor, currentColor, currentColor));
 		}
 	}
 
-	Texture2D tex(&pixelData[0][0][0], 256, 256, 2);
-	tex.save(filename.c_str());
+	return texture;
+}
+
+// save as png (loses accuracy)
+void HGHT::writeTexture(const std::string& filename)
+{
+	getTexture().save(filename.c_str());
 }
 
 void HGHT::writeOBJ(const std::string& filename)
@@ -81,12 +88,18 @@ void HGHT::writeOBJ(const std::string& filename)
 	// write object header
 	file << "o model" << std::endl;
 
+	TSCBHeader header = TSCB::getInstance().getHeader();
+	TSCBArea area = TSCB::getInstance().getAreabyName(filenameUtils::getFileNameOnly(m_filename));
+	
+	float scale = (area.areaSize / header.tileSize * header.worldScale) * 20.0f;
+	glm::vec2 offset = TSCB::getInstance().getAreaLocation(filenameUtils::getFileNameOnly(m_filename)) * 256.0f;
+
 	// write verts
 	for (int x = 0; x < 256; x++)
 	{
 		for (int y = 0; y < 256; y++)
 		{
-			glm::vec3 currentPosition = glm::vec4(x, (float)m_heights(y, x) / 2048.0f, y, 1);
+			glm::vec3 currentPosition = glm::vec3(offset.x + x, m_heights(y, x) / scale, offset.y + y);
 
 			file << "v " << currentPosition.x << " " << currentPosition.y << " " << currentPosition.z << std::endl;
 		}
@@ -102,6 +115,40 @@ void HGHT::writeOBJ(const std::string& filename)
 				file << "f " << i << " " << i + 256 << " " << i + 257 << std::endl;
 				file << "f " << i << " " << i + 257 << " " << i + 1 << std::endl;
 			}
+		}
+	}
+
+	file.close();
+}
+
+void HGHT::writeOBJPointCloud(const std::string& filename)
+{
+	std::ofstream file;
+	file.open(filename, std::ios::trunc);
+
+	if (!file.is_open())
+	{
+		std::cout << "Failed to load " << filename << std::endl;
+		return;
+	}
+
+	// write object header
+	file << "o model" << std::endl;
+
+	TSCBHeader header = TSCB::getInstance().getHeader();
+	TSCBArea area = TSCB::getInstance().getAreabyName(filenameUtils::getFileNameOnly(m_filename));
+
+	float scale = (area.areaSize / header.tileSize * header.worldScale) * 20.0f;
+	glm::vec2 offset = TSCB::getInstance().getAreaLocation(filenameUtils::getFileNameOnly(m_filename)) * 256.0f;
+
+	// write verts
+	for (int x = 0; x < 256; x++)
+	{
+		for (int y = 0; y < 256; y++)
+		{
+			glm::vec3 currentPosition = glm::vec3(offset.x + x, m_heights(y, x) / scale, offset.y + y);
+
+			file << "v " << currentPosition.x << " " << currentPosition.y << " " << currentPosition.z << std::endl;
 		}
 	}
 
@@ -138,7 +185,7 @@ void HGHT::readHeights()
 	file.close();
 }
 
-const int HGHT::getLOD()
+int HGHT::getLOD() const
 {
 	return std::stoi(filenameUtils::getFileNameOnly(m_filename).substr(1, 1));
 }
@@ -162,7 +209,7 @@ void HGHT::average()
 	{
 		for (int y = 0; y < 256; y++)
 		{
-			m_heights(x, y) = averageHeight;
+			m_heights(x, y) = (uint16_t)averageHeight;
 		}
 	}
 }

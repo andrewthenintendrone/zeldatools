@@ -7,7 +7,7 @@ public:
 
 	char m_magic[4];
 	uint32_t m_sizeOfArchive;
-	uint16_t m_types;
+	uint16_t m_numberOfTypes;
 	uint16_t m_numberOfFiles;
 	uint32_t m_offsetToFiletypesSection;
 	uint32_t m_offsetToFileMetadataSection;
@@ -25,8 +25,10 @@ public:
 	uint32_t m_unknown;
 };
 
-class ZARFileMetadatSection
+class ZARFileMetadataSection
 {
+public:
+
 	uint32_t m_filesize;
 	uint32_t m_offsetToFilename;
 };

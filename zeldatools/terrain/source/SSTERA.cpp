@@ -15,7 +15,7 @@ SSTERA::SSTERA(const std::string& filename)
 	// check if file was opened correctly
 	if (!m_inputFile.is_open())
 	{
-		std::cout << "Failed to open " << m_filename << std::endl;
+		std::cout << "Failed to open " << m_filename << " for reading" << std::endl;
 		system("pause");
 	}
 
@@ -71,7 +71,7 @@ void SSTERA::readFile()
         {
             for (int y = 0; y < 256; y++)
             {
-                m_inputFile.read(reinterpret_cast<char*>(&m_data[i][x][y]), sizeof(uint16_t));
+                m_inputFile.read(reinterpret_cast<char*>(&m_data[i][x][y]), sizeof(uint32_t));
             }
         }
     }
@@ -86,7 +86,7 @@ void SSTERA::writeFiles()
 
         if (!m_outputFiles[i].is_open())
         {
-            std::cout << "failed to open " << m_filenames[i] << std::endl;
+            std::cout << "failed to open " << m_filenames[i] << " for writing" << std::endl;
             system("pause");
         }
 
@@ -95,7 +95,7 @@ void SSTERA::writeFiles()
         {
             for (int y = 0; y < 256; y++)
             {
-                m_outputFiles[i].write(reinterpret_cast<char*>(&m_data[i][x][y]), sizeof(uint16_t));
+                m_outputFiles[i].write(reinterpret_cast<char*>(&m_data[i][x][y]), sizeof(uint32_t));
             }
         }
 

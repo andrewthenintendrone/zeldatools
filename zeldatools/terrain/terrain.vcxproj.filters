@@ -84,6 +84,12 @@
     <ClCompile Include="source\Terrain.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="source\BinaryReader.cpp">
+      <Filter>Source Files\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="source\BinaryWriter.cpp">
+      <Filter>Source Files\Helper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Array2D.h">
@@ -154,6 +160,12 @@
     </ClInclude>
     <ClInclude Include="source\Terrain.h">
       <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="source\BinaryReader.h">
+      <Filter>Source Files\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="source\BinaryWriter.h">
+      <Filter>Source Files\Helper</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

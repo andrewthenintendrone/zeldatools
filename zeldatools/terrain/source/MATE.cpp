@@ -45,27 +45,28 @@ void MATE::save(const std::string& filename)
 	file.close();
 }
 
-// save as png
-void MATE::writeTexture(const std::string& filename)
+// create a texture from this material map
+Texture2D MATE::getTexture() const
 {
-	// create pixel buffer
-	unsigned char pixelData[256][256][3];
+	Texture2D texture(256, 256, 3);
 
-	// set values in pixel buffer
-	for (int x = 0; x < 256; x++)
+	for (int y = 0; y < 256; y++)
 	{
-		for (int y = 0; y < 256; y++)
+		for (int x = 0; x < 256; x++)
 		{
-			Color pixelColor = TextureHolder::getInstance().getTerrainPixelApproximate(m_mateInfo(x, y), x, y);
-
-			pixelData[x][y][0] = pixelColor.r;
-			pixelData[x][y][1] = pixelColor.g;
-			pixelData[x][y][2] = pixelColor.b;
+			MATEinfo currentInfo = m_mateInfo(y, x);
+			Color currentColor = TextureHolder::getInstance().getTerrainPixelApproximate(currentInfo, x, y);
+			texture.setPixel(x, y, currentColor);
 		}
 	}
 
-	Texture2D tex(&pixelData[0][0][0], 256, 256, 3);
-	tex.save(filename.c_str());
+	return texture;
+}
+
+// save as png
+void MATE::writeTexture(const std::string& filename)
+{
+	getTexture().save(filename.c_str());
 }
 
 void MATE::writeRaw(const std::string& filename)
@@ -87,8 +88,42 @@ void MATE::writeRaw(const std::string& filename)
 		}
 	}
 
-	Texture2D tex(&pixelData[0][0][0], 256, 256, 4);
+	Texture2D tex(256, 256, 4, &pixelData[0][0][0]);
 	tex.save(filename.c_str());
+}
+
+int MATE::fixMaterialIndex(int index)
+{
+	if (index == 29)
+	{
+		return 17;
+	}
+	if (index == 30)
+	{
+		return 18;
+	}
+	if (index == 31 || index == 76)
+	{
+		return 0;
+	}
+	if (index > 31 && index < 63)
+	{
+		return index - 3;
+	}
+	if (index == 63)
+	{
+		return 7;
+	}
+	if (index > 63 && index < 76)
+	{
+		return index - 4;
+	}
+	if (index > 76)
+	{
+		return index - 5;
+	}
+
+	return index;
 }
 
 void MATE::writeUnknown(const std::string& filename)
@@ -107,7 +142,7 @@ void MATE::writeUnknown(const std::string& filename)
 		}
 	}
 
-	Texture2D tex(&pixelData[0][0], 256, 256, 1);
+	Texture2D tex(256, 256, 1, &pixelData[0][0]);
 	tex.save(filename.c_str());
 }
 
@@ -125,31 +160,6 @@ void MATE::dumpMATEFile(const std::string& filename)
 	if (!fs::exists(outputFolder + fs::path(filename).stem().string()))
 	{
 		mate.writeTexture(outputFolder + fs::path(filename).stem().string());
-	}
-}
-
-void MATE::setTestValues()
-{
-	for (size_t x = 0; x < 256; x++)
-	{
-		for (size_t y = 0; y < 256; y++)
-		{
-			m_mateInfo(x, y).id1 = 64;
-			m_mateInfo(x, y).id2 = 0;
-			m_mateInfo(x, y).blend = 0;
-			m_mateInfo(x, y).unk = 128;
-		}
-	}
-}
-
-void MATE::setUnknown(uint8_t value)
-{
-	for (int x = 0; x < 256; x++)
-	{
-		for (int y = 0; y < 256; y++)
-		{
-			m_mateInfo(x, y).unk = value;
-		}
 	}
 }
 
@@ -172,6 +182,8 @@ void MATE::readMaterial()
 		for (int y = 0; y < 256; y++)
 		{
 			file.read(reinterpret_cast<char*>(&m_mateInfo(x, y)), sizeof(MATEinfo));
+			m_mateInfo(x, y).id1 = fixMaterialIndex(m_mateInfo(x, y).id1);
+			m_mateInfo(x, y).id2 = fixMaterialIndex(m_mateInfo(x, y).id2);
 		}
 	}
 

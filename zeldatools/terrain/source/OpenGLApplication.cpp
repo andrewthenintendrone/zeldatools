@@ -78,6 +78,17 @@ void OpenGLApplication::setup()
 	m_terrainShader = Shader((fs::current_path().string() + "\\resources\\shaders\\terrainShader.vs").c_str(),
 		(fs::current_path().string() + "\\resources\\shaders\\terrainShader.fs").c_str());
 
+	m_terrainShader.bind();
+
+	m_terrainShader.setVec4("WaterColors[0]", Color::Aqua().asVec4());
+	m_terrainShader.setVec4("WaterColors[1]", Color::Aquamarine().asVec4());
+	m_terrainShader.setVec4("WaterColors[2]", Color::Purple().asVec4());
+	m_terrainShader.setVec4("WaterColors[3]", Color::Red().asVec4());
+	m_terrainShader.setVec4("WaterColors[4]", Color::Cyan().asVec4());
+	m_terrainShader.setVec4("WaterColors[5]", Color::Brown().asVec4());
+	m_terrainShader.setVec4("WaterColors[6]", Color::White().asVec4());
+	m_terrainShader.setVec4("WaterColors[7]", Color::LightSeaGreen().asVec4());
+
 	for (auto& iter : fs::directory_iterator(filenameUtils::getHGHTFolder()))
 	{
 		m_filenames.push_back(iter.path().stem().string());
@@ -160,6 +171,9 @@ void OpenGLApplication::render()
 
 	// set rotation
 	m_terrainShader.setFloat("testValue", rotation);
+
+	// draw water?
+	m_terrainShader.setBool("drawWater", drawWater);
 
 	m_terrain.draw(m_terrainShader);
 
@@ -276,6 +290,12 @@ void OpenGLApplication::processInput()
 	if (Input::getInstance().getPressed(GLFW_KEY_9))
 	{
 		m_terrain.loadData("580000C7BC", true, true);
+	}
+
+	// M toggles drawing of water
+	if (Input::getInstance().getPressed(GLFW_KEY_M))
+	{
+		drawWater = !drawWater;
 	}
 
 	// draw in wireframe if space is held

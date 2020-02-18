@@ -7,11 +7,13 @@ class BinaryWriter
 public:
 
 	BinaryWriter() {};
-	BinaryWriter(std::string& filename);
+	BinaryWriter(const std::string& filename);
 	~BinaryWriter();
 
 	template<class T>
 	void write(T data);
+
+	void seek(int offset, bool relative);
 
 private:
 
@@ -21,5 +23,5 @@ private:
 template<class T>
 inline void BinaryWriter::write(T data)
 {
-	m_file.write(reinterpret_cast<char*>(&data), sizeof(data));
+	m_file.write((char*)&data, sizeof(data));
 }

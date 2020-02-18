@@ -1,32 +1,42 @@
 #pragma once
-#include "Color.h"
 #include <string>
+
+#include "Color.h"
 
 class Texture2D
 {
 public:
 
-	Texture2D();
-	Texture2D(const char* filename);
-	Texture2D(unsigned char* buffer, unsigned int width, unsigned int height, unsigned int format);
+	#pragma region constructors
+
+	Texture2D() {};
+	Texture2D(const Texture2D& other);
+	Texture2D(int width, int height, int channels, unsigned char* buffer = nullptr);
+	Texture2D(const std::string& filename);
 	~Texture2D();
 
-	void load(const char* filename);
+	#pragma endregion
 
-	void bind(unsigned int slot) const;
-
+	void load(const std::string& filename);
 	void save(const std::string& filename);
 
-	unsigned int getHandle() const { return m_glHandle; }
+	void generate();
+	void bind() const;
 
-	Color getPixel(int x, int y);
+	Color getPixel(int x, int y) const;
+	void setPixel(int x, int y, Color color);
+
+	void operator = (Texture2D& other);
 
 private:
 
-	unsigned int m_width = 0;
-	unsigned int m_height = 0;
-	unsigned int m_format = 0;
-	unsigned int m_glHandle = 0;
+	std::string m_filename;
+	unsigned char* m_pixelBuffer = nullptr;
+	int m_width = 0;
+	int m_height = 0;
+	int m_channels = 0;
 
-	unsigned char* m_buffer = nullptr;
+	unsigned int m_handle = 0;
+
+	int getPixelOffset(int x, int y) const;
 };

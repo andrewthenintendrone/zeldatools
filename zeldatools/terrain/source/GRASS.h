@@ -2,6 +2,7 @@
 #include <vector>
 #include "Array2D.h"
 #include <glm\glm.hpp>
+#include "Texture2D.h"
 
 struct GRASSinfo
 {
@@ -21,23 +22,17 @@ public:
 	void load(const std::string& filename);
 	void save(const std::string& filename);
 
+	Texture2D getTexture(bool alpha = false) const;
+
 	// write files
-	void writeTexture(const std::string& filename);
-	void writeRaw(const std::string& filename);
-	void writeUnknown(const std::string& filename);
+	void writeTexture(const std::string& filename, bool alpha = false);
 
 	const GRASSinfo getGrassInfo(unsigned int x, unsigned int y) const { return m_grassInfo(x, y); }
 	GRASSinfo& getGrassInfo(unsigned int x, unsigned int y) { return m_grassInfo(x, y); }
 
-	static void dumpGRASSFile(const std::string& filename);
-
-	void setTestValues();
-
 private:
 
 	std::string m_filename;
-
-	void readGrass();
 
 	// material info array
 	Array2D<GRASSinfo> m_grassInfo = Array2D<GRASSinfo>(64, 64);

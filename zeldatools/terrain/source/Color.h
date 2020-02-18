@@ -9,10 +9,16 @@ class Color
 {
 public:
 
-	// constructors
+	#pragma region constructors
+
 	Color();
-	Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
+	Color(const Color& other);
+	Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255);
 	Color(uint32_t hexCode);
+	Color(glm::vec3 vec3);
+	Color(glm::vec4 vec4);
+
+	#pragma endregion
 
 	// union
 	union
@@ -30,17 +36,47 @@ public:
 	glm::vec3 asVec3() const;
 	glm::vec4 asVec4() const;
 
-	static Color FromArgb(uint8_t alpha, uint8_t red, uint8_t green, uint8_t blue);
+	#pragma region operator overloads
 
 	void operator = (const Color& other);
 	Color operator + (const Color& other) const;
 	void operator += (const Color& other);
 	Color operator - (const Color& other) const;
 	void operator -= (const Color& other);
+	Color operator * (const Color& other) const;
+	void operator *= (const Color& other);
+	friend std::ostream& operator << (std::ostream& os, const Color& c);
 
-	const static Color lerp(const Color& color1, const Color& color2, const float factor);
+	#pragma endregion
 
-#pragma region constants
+	float getHue() const;
+	float getSaturation() const;
+	float getValue() const;
+
+	#pragma region comparisons
+
+	static bool compareHue(const Color& a, const Color& b);
+	static bool compareSaturation(const Color& a, const Color& b);
+	static bool compareValue(const Color& a, const Color& b);
+
+	#pragma endregion
+
+	static Color lerp(const Color& a, const Color& b, float t);
+
+	#pragma region conversion
+
+	static Color convertFromBGR555(uint16_t bgr);
+	static uint16_t convertToBGR555(Color color);
+
+	static Color convertFromRGB565(uint16_t rgb);
+	static uint16_t convertToRGB565(Color color);
+
+	static Color convertFromBGR222(uint8_t bgr);
+	static uint8_t convertToBGR222(Color color);
+
+	#pragma endregion
+
+	#pragma region constants
 
 	static Color AliceBlue();
 	static Color AntiqueWhite();
@@ -191,6 +227,5 @@ public:
 	static Color Yellow();
 	static Color YellowGreen();
 
-#pragma endregion
-
+	#pragma endregion
 };

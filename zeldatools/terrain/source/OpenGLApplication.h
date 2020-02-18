@@ -60,6 +60,7 @@ private:
 	float m_heightScale;
 
 	float rotation = 0;
+	bool drawWater = true;
 
 	std::vector<std::string> m_filenames;
 	int m_filenameIndex = 0;

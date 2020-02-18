@@ -86,13 +86,9 @@ Color TextureHolder::getTerrainPixel(const MATEinfo& mateInfo, int x, int y)
 
 Color TextureHolder::getTerrainPixelApproximate(const MATEinfo& mateInfo, int x, int y)
 {
-	// fix material indices
-	uint8_t m1 = fixMaterialIndex(mateInfo.id1);
-	uint8_t m2 = fixMaterialIndex(mateInfo.id2);
-
 	// get both colors
-	Color c1 = m_approximateTerrainColors[m1];
-	Color c2 = m_approximateTerrainColors[m2];
+	Color c1 = m_approximateTerrainColors[mateInfo.id1];
+	Color c2 = m_approximateTerrainColors[mateInfo.id2];
 
 	return Color::lerp(c1, c2, mateInfo.blend / 255.0f);
 }
@@ -102,9 +98,9 @@ Color TextureHolder::getWaterPixel(const WATERInfo& waterInfo, int x, int y)
 	return Color(0x000000ff);
 }
 
-Color TextureHolder::getWaterPixelApproximate(const WATERInfo& waterInfo, int x, int y)
+Color TextureHolder::getWaterPixelApproximate(const WATERInfo& waterInfo)
 {
-	return Color(0x000000ff);
+	return m_approximateWaterColors[waterInfo.materialIndex];
 }
 
 void TextureHolder::bindTextures(Shader shader)
@@ -114,40 +110,5 @@ void TextureHolder::bindTextures(Shader shader)
 
 	shader.setInt("waterTextures", 1);
 	m_waterTextures.bind(1);
-}
-
-// fixes offsets to account for resused textures in the file
-int TextureHolder::fixMaterialIndex(int materialIndex)
-{
-	if (materialIndex == 29)
-	{
-		return 17;
-	}
-	if (materialIndex == 30)
-	{
-		return 18;
-	}
-	if (materialIndex == 31 || materialIndex == 76)
-	{
-		return 0;
-	}
-	if (materialIndex > 31 && materialIndex < 63)
-	{
-		return materialIndex - 3;
-	}
-	if (materialIndex == 63)
-	{
-		return 7;
-	}
-	if (materialIndex > 63 && materialIndex < 76)
-	{
-		return materialIndex - 4;
-	}
-	if (materialIndex > 76)
-	{
-		return materialIndex - 5;
-	}
-
-	return materialIndex;
 }
 

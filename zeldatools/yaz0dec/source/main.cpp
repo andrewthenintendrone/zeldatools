@@ -117,14 +117,14 @@ void decodeAll(u8 * src, int srcSize, char* srcName)
         printf("Writing %s\n", dstName);
 
         u32 Size = toDWORD(*(u32*)(src + readBytes));
-        printf("Writing 0x%X bytes\n", Size);
+        //printf("Writing 0x%X bytes\n", Size);
         u8* Dst = (u8 *)malloc(Size + 0x1000);
 
         readBytes += 12; //4 byte size, 8 byte unused
 
         Ret r = decodeYaz0(src + readBytes, srcSize - readBytes, Dst, Size);
         readBytes += r.srcPos;
-        printf("Read 0x%X bytes from input\n", readBytes);
+        //printf("Read 0x%X bytes from input\n", readBytes);
 
         fwrite(Dst, r.dstPos, 1, DataFile);
         free(Dst);
@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
     int size = ftell(inFile);
     fseek(inFile, 0, SEEK_SET);
 
-    printf("input file size: 0x%X\n", size);
+    //printf("input file size: 0x%X\n", size);
 
     u8* buff = new u8[size];
 

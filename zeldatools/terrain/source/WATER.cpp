@@ -18,27 +18,28 @@ void WATER::load(const std::string& filename)
 	readWaterinfo();
 }
 
-// write png
-void WATER::writeTexture(const std::string& filename)
+Texture2D WATER::getTexture() const
 {
-	// create pixel buffer
-	char pixelData[64][64][3];
+	Texture2D texture(64, 64, 3);
 
-	// set values in pixel buffer
-	for (int x = 0; x < 256; x++)
+	for (int y = 0; y < 64; y++)
 	{
-		for (int y = 0; y < 256; y++)
+		for (int x = 0; x < 64; x++)
 		{
-			Color pixelColor = TextureHolder::getInstance().getWaterPixel(m_waterInfo(x, y), x, y);
+			WATERInfo currentInfo = m_waterInfo(y, x);
+			Color currentColor = TextureHolder::getInstance().getWaterPixelApproximate(currentInfo);
 
-			pixelData[x][y][0] = pixelColor.r;
-			pixelData[x][y][1] = pixelColor.g;
-			pixelData[x][y][2] = pixelColor.b;
+			texture.setPixel(x, y, currentColor);
 		}
 	}
 
-	// write file
-	stbi_write_png((filename + ".png").c_str(), 256, 256, 3, pixelData, 256 * 3);
+	return texture;
+}
+
+// write png
+void WATER::writeTexture(const std::string& filename)
+{
+	getTexture().save(filename.c_str());
 }
 
 void WATER::readWaterinfo()
